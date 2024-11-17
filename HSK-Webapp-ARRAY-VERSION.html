@@ -1,0 +1,1032 @@
+
+<!DOCTYPE html>
+
+<!--
+CREATED BY:
+	DEM NISBET (AKA DEMNEPTUNE ON THE WEB, TIDES OF NEPTUNE ON SPOTIFY)
+	BEGUN: 2023-08-xx
+LICENSE: 
+	GNU-GPL (FOR ALL PROGRAMMING CODE)
+PURPOSE: 
+	USER ENTERS TEXT, PROGRAM ANALYSES ALL HSK WORDS AND GIVES SIMPLE DEFINITIONS
+-->
+
+<html>
+<head>
+	
+	<style>
+		
+		
+		
+		.hsk26 {background: #ff80ff; text-decoration: underline #ff80ff;}
+		.hsk25 {background: aqua;}
+		.hsk24 {background: lime;}
+		.hsk23 {background: thistle;}
+		.hsk22 {background: coral;}
+		.hsk21 {background: bisque;}
+		.hsk37 {background: DarkKhaki;}
+		.hsk36 {background-color:hsl(240, 100%, 90%);}
+		.hsk35 {background-color:hsl(147, 50%, 90%);}
+		.hsk34 {background-color:hsl(0, 100%, 90%);}
+		.hsk33 {background: grey;}
+		.hsk32 {background: orange;}
+		.hsk31 {background: yellow;}
+		.hskNull {font-weight: bold; color:red;}
+		
+		.pinyinMatchFound {
+			font-size:125%;
+			border: 1px solid black;
+			outline: #4CAF50 solid 2px;
+			margin: auto;
+			padding: 1px;
+			text-align: center;			
+		}
+
+
+		.chineseText {
+			font-family: "Times New Roman", Times, serif;
+			font-size: 110%;
+			line-height: 140%;
+		}
+
+/* "Times New Roman", Times, serif, KaiTi, STKaiti, DFKai-SB, BiauKai, STHeitiSC-Light, STHeitiTC-Light; Garamond;  */
+	
+		.chineseAndEnglish{
+			font-family: "Times New Roman", Times, serif;
+			font-size:110%; 
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		/* Create two equal columns that floats next to each other */
+		.column {
+			float: left;
+			width: 50%;
+			padding: 10px;
+			/*height: 300px;  Should be removed. Only for demonstration */
+		}
+
+		/* Clear floats after the columns */
+		.row:after {
+			content: "";
+			display: table;
+			clear: both;
+		}
+
+		.button {
+		  border: none;
+		  color: white;
+		  padding: 16px 32px;
+		  text-align: center;
+		  text-decoration: none;
+		  display: inline-block;
+		  font-size: 16px;
+		  margin: 4px 2px;
+		  transition-duration: 0.4s;
+		  cursor: pointer;
+		}
+
+		.button1 {
+		  background-color: white; 
+		  color: black; 
+		  border: 2px solid #4CAF50;
+		}
+
+		.button1:hover {
+			background-color: #4CAF50;
+			color: white;
+		}
+		.button:active {
+			background-color: #3e8e41;
+			box-shadow: 0 5px #666;
+			transform: translateY(4px);
+		}
+
+		.button2 {
+		  background-color: white; 
+		  color: black; 
+		  border: 2px solid #008CBA;
+		}
+
+		.button2:hover {
+		  background-color: #008CBA;
+		  color: white;
+		}
+
+	</style>
+
+</head>
+
+<body>
+
+<title>&#x2615; HSK Web App</title>
+<h1 id="pageHeading">HSK Web App</h1>
+<h2 id="firstPar">alpha testing</h2>
+	<ul>TO DO
+	<li>FIND DUPLICATE WORDS</li>
+	<li>Make buttons functional</li>
+	<li>change css so user feedback of defnitions has neater formatting/ improve highlighting of selected words</li>
+	<li>stop app from recording extra item found because it searches its own feedback</li>
+	</ul>
+
+
+<div class="row">
+	
+	<!--User text input-->
+  <div class="column" style="background-color:#eee;">
+    
+		<form id="formForChineseInput">
+
+		<p><label for="enterChineseText">
+			Enter Chinese text
+			<ul>
+				<li>Web app will remove English text, and truncate input over its limit (20,000 characters).</li>
+				<li>HSK lists are sourced from the web, and are nearly complete, but not quite.</li>
+				<li>There will be errors in word divisions, which are ambiguous in written Chinese. It has no AI; it simply searches the higher HSK levels first.</li>
+				<li>The app lists the definitions with its number (#1 etc) in the filtered input (#304 means, the 304th character after removing any English from the input)</li>
+				<li>If you want to load a new list, you have to reload the page.</li>
+			</ul>
+		</label></p>
+
+		  <textarea id="textInput" name="textInput" rows="10" cols="80"></textarea>
+		  <br>
+
+		</form>
+		<button id="submitButton1" class="button button1">Submit</button>
+
+
+
+	</div>
+	<!--User choices, console-type feedback-->
+	<div class="column" style="background-color:#ddd;">
+		<form id="formForPinyinSearchBox">
+		  <label for="pinyinSearchBox">Pinyin search: enter pinyin for the dictionary entry without accents or spaces (letters only), eg. "bannian"<br>If there is no match, it says "Matches found: 0" - it gives no other feedback<br></label>
+		  <input type="submit">
+		  <input type="text" id="pinyinSearchBox" name="pinyinSearchBox" value=""><br>
+		</form>
+
+		<form>
+			<input type="checkbox" id="HSK2Box" name="HSK2" value="HSK2" checked>
+			<label for="hsk2012"> Include HSK 2012 words</label><br>
+			<input type="checkbox" id="HSK3Box" name="HSK3" value="HSK3" checked>
+			<label for="hsk3"> Include HSK 3.0 (2021) words</label><br>
+			<input type="checkbox" id="arrangeDefinitionsBox" name="" value="">
+			<label for="groupByHsk">Group definitions by HSK level</label><br>
+			<input type="checkbox" id="dontIncludeLowerLevelWords" name="" value="">
+			<label for="extraInfo"> Don't include lower level words</label><br><br>
+			<!--
+			  <input type="submit" value="Submit">
+			-->
+		</form> 
+		<div id="userChoiceConsoleOutput"></div>
+		<div id="matchesFoundOutput"></div>
+	</div>
+</div>
+
+<p id="console" style="font-family:Segoe UI"></p>
+
+
+<div id="chineseOutput" class="chineseText">
+</div>
+
+
+<div id="definitionsListHeader">
+</div>
+<div id="definitionsList" class="chineseAndEnglish">
+</div>
+
+
+<script src="jQuery-3-7-1.js"></script>
+
+
+<!--
+These next files load a comma separated list of the chinese words (list only) AT each level (HSK 2012) with comma separated entries.
+
+generated from definition lists using website, regexp:
+	https://regexr.com/
+	(?<=»\d+\s+)[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+
+number of entries does not necessarily match number listed alongside definition, since the numbered definition lists contain duplicate numbers for distinct words like "zhe" and "zher".
+
+Variables are declared as an array in the format: "hsk2012LxChineseList[1] = ";
+-->
+
+<!--
+		THIS CODE (SEPARATE WORD LISTS AND DEFINITION LISTS) IS NOW REDUNDANT AND HAS BEEN REPLACED BY THE ARRAY VERSIONS OF THE FULL DICTIONARIES
+		IT IS PRESERVED HERE IN CASE OF BUGS SHOWING UP LATER
+
+
+		<script>
+			var hsk2012LxChineseList = [];
+		</script>
+		<script src="HSK-2012-L1-3-chinese-lists.js"></script>
+		<script src="HSK-2012-L4-6-chinese-lists.js"></script>
+
+
+				<!--
+				These files are string variables with the definitions for the words.
+				Variables are declared as an array in the format: hsk2012LxDefinitionList[1] =		
+		<script>
+			var hsk2012LxDefinitionList = [];
+		</script>
+		<script src="HSK-2012-L1-3-definition-list.js"></script>
+		<script src="HSK-2012-L4-definition-list.js"></script>
+		<script src="HSK-2012-L5-definition-list.js"></script>
+		<script src="HSK-2012-L6-definition-list.js"></script>
+
+
+				<!--
+				These files load a comma separated list of the chinese words (list only) AT each level (HSK 3.0) with comma separated entries.
+				Variables are declared as an array in the format: "hsk3LxChineseList[1] = 爱,爱好,八,爸爸,...";
+		<script>
+			var hsk3LxChineseList = []; //sets up the array
+		</script>
+		<script src="HSK3-L1-7-chinese-lists.js"></script>
+
+
+				<!--
+				These files are string variables with the definitions for the words.
+				Variables are declared as an array in the format: hsk3LxDefinitionList[1] =
+		<script>
+			var hsk3LxDefinitionList = []; //sets up the array
+		</script>
+		<script src="HSK3-L1-definition-list.js"></script>
+		<script src="HSK3-L2-definition-list.js"></script>
+		<script src="HSK3-L3-definition-list.js"></script>
+		<script src="HSK3-L4-definition-list.js"></script>
+		<script src="HSK3-L5-definition-list.js"></script>
+		<script src="HSK3-L6-definition-list.js"></script>
+		<script src="HSK3-L7-definition-list.js"></script>
+-->
+
+
+
+
+<!--THESE ARE THE WRAPPER ARRAYS FOR THE ARRAY VERSIONS OF THE DICTIONARIES, COMBINING CHINESE WORDS AND DEFINITIONS-->
+<script>
+	var hsk2012LxWordPlusDefnList = [];
+	var hsk3LxWordPlusDefnList = [];
+</script>
+<!--THESE ARE THE ARRAY VERSIONS, COMBINING CHINESE WORDS AND DEFINITIONS-->
+<script src="HSK-2012-L1-3-word-plus-def-ARRAY.js"></script>
+<script src="HSK-2012-L4-word-plus-def-ARRAY.js"></script>
+<script src="HSK-2012-L5-word-plus-def-ARRAY.js"></script>
+<script src="HSK-2012-L6-word-plus-def-ARRAY.js"></script>
+
+<script src="HSK3-L1-word-plus-def-ARRAY.js"></script>
+<script src="HSK3-L2-word-plus-def-ARRAY.js"></script>
+<script src="HSK3-L3-word-plus-def-ARRAY.js"></script>
+<script src="HSK3-L4-word-plus-def-ARRAY.js"></script>
+<script src="HSK3-L5-word-plus-def-ARRAY.js"></script>
+<script src="HSK3-L6-word-plus-def-ARRAY.js"></script>
+<script src="HSK3-L7-word-plus-def-ARRAY.js"></script>
+
+
+
+
+
+<script>
+
+
+const MAX_INPUT = 20000;
+const HSK_3 = 3;
+const HSK_2012 = 2;
+const DEBUG_ZERO = 0; //DEBUG VALUE
+
+	//TO DO:
+		//MODULARISE FURTHER, ESP WHERE MARKED
+		//ADD CHAPTERS FOR WHICH CHAPTER EACH WORD IS FROM
+		//KEEP NUMBERS FOR EILEEN'S VIDS: NUMBERS OF CARDS TO BE KEPT
+		//CLEAN BRACKET DEFINITIONS FROM SET 3 WORDS: FOLLOW FORMAT OF ZI-(EXAMPLE: ZHUOZI) - NO CHINESE IN DEFINITION IF POSSIBLE PLEASE SEARCH FOR FUNNY BRACKETS （）, (U+FF08)
+		//MULTI-PINYIN WORDS NEED MULTI PINYIN CLASSES, ESP: TIAO/DIAO
+			//OR: JUST PRINT BOTH DEFINITIONS, ALLOW MULTIPLE MATCHES, JUST REMEMBER TO ADD MULTIPLE DEFINITIONS AND MULTIPLE PINYIN CLASSES, MUST BE CAREFUL WITH THE CSS SYNTAX
+		//BUGFIX: SHOULD NOT ADD ONE TO THE COUNT FOR PINYIN FOUND, WHEN IT READS THE EXTRA DEFINITION POSTED IN THE TOP WINDOW (READING ITS OWN HTML WINDOW): LIMIT CHECK TO ALL USER "MAINSPACE" - PERHAPS ADD A MAINSPACE DIV
+		//ADD USER OPTIONS: SEE CLASS DEFINITION FOR THIS, CURRENTLY EMPTY
+		//IF YOU CHANGE THE DICTIONARIES AND THEIR FORMATTING, SO ALL AN ARRAY, PROB WILL WANT TO CHANGE ALL "SPAN" TAG CODE TO PUT IN A DIFFERENT PLACE - MORE THINGS BECOME READILY AVAILABLE TO THE PROGRAM, SUCH AS PINYIN
+			//CODE THAT WILL BE DISRUPTED, MARKED AS:
+				//MODULARISE
+		//CLICK ON CHINESE CHARACTER, FIND ALL CASES OF THAT CHINESE WORD
+		//ADD ACCESSORY INPUT, HIGHLIGHT OTHER EXAMPLES OF THE LEARNING WORDS FROM THE PRIMARY INPUT
+		//PUT PROCESSINPUT FUNCTION INSIDE ARRAY CLASS
+		//PROCESSEDINPUT: BAD VARIABLE NAME, BECAUSE ONLY STEP 1 OF PROCESSING: INPUTCLEANED1STEP OR SOMETHING LIKE THAT
+		//ADD SUB-WORD DEFINITIONS IF THEY ARE FOUND
+		//KEEP BOTH DEFINITIONS IF ITS THE SAME WORD
+	//user choices: 
+		//choose which levels, and which vocab set to use
+			//allow both, but then choose which one has priority (or: force the old hsk to have priority)
+
+
+	//TESTING FILE IS NEEDED: WHAT HAPPENS IF INPUT CONSISTS OF SAME CHARACTER REPEATEDLY, SUCH AS BABABABA, WHICH IS ALREADY A CHINESE WORD WITH 2 REPEATED CHARACTERS: OVERLAPPING MATCHES WITH SAME WORD??
+		//EG: 稍稍 FROM EILEEN'S TATTOOS VIDEO
+		//589 	高速公路 	gāosùgōnglù 	expressway; highway; freeway: COMPOUND WORD, TEST
+		//"hskWd":"子","hskDefn":"子（桌子）\tzi （ zhuō zi ）\tnoun suffix (table)","pinyinNoSpaces":"zizhuozi"}, (FROM THE OUTPUT OF THE NEW ARRAY FORMAT, CHECK WHAT'S HAPPENING)
+
+
+	
+	
+	
+	//OVERVIEW OF ALGORITHM:
+		//WHOLE PROGRAM IS BASICALLY AN INTERACTION BETWEEN THE INPUT CHARACTERS (ONE MAJOR CLASS FOR THE INPUT) AND THE DICTIONARIES (ONE MAJOR CLASS FOR ALL DICTIONARIES)
+		//THE DICTIONARIES ARE INITIALISED AT LOAD, BEFORE ANY CLICK EVENTS, AND MUST NOT BE ALTERED
+		//THE INPUT CLASS HANDLES THE PRINTING TO THE SCREEN (TECHNICALLY, THE OBJECTS OF "CHARACTERFROMINPUT" WHICH ARE THE ELEMENTS OF THE MASTER CLASS WHICH CONTAINS AN ARRAY, "ARRAYOFCHARACTERFROMINPUT")
+	//ALGORITHM: iterates through the dictionaries, NOT the input text. From the dictionaries, it uses string search to search the input text.
+	//handling input data
+		//text input of N characters: 
+			//clean all non-chinese (IDEALLY: ALLOW USER OPTION)
+			//==>remaining string of M characters: data needs:
+				//NEW CLASS: constructor for data processing class for each input character
+					//class CharacterFromInput
+					//ARRAY of this class, from 0 to M-1, one for each input character
+					//methods will be called when a match is found.
+				//NEW CLASS: ARRAY class to hold the special Character class
+			//==>input string of M remaining characters
+				//Use chinese hsk words in arrays, one array per set: take the definition entries one at a time, search in the input text.
+					//SEARCH THE PLAIN TEXT INPUT, UPDATE INFO IN THE ASSOCIATED ARRAY, ONE ARRAY ENTRY PER CHARACTER FROM INPUT
+					//DON'T UPDATE FOR THE NEW WORD:
+						//if first or last characters are not word boundaries (first char must be either not found or first character of a word)
+							//IF DELETING: must carefully delete all info from the previous word
+					//add definition for first appearance of each word.
+					//IF YOU FIND A WORD TWICE, MARK IT AS FOUND, BUT DON'T PRINT DEFINITION TO DEFINITION STRING ARRAY.
+					//MARK WORDS THAT SHOULD EXIST, BUT THAT ARE NOT FOUND
+				//definition list array: locate the word, definition goes to output array.
+
+
+	//ASSUMPTIONS:
+		//longer word always replaces shorter word/s when matching hsk words to the input
+		//lower level hsk (later in the search algorithm) always replaces higher level: NOTE: THIS MIGHT CHANGE, DON'T ASSUME THIS WILL BE FIXED OR THAT YOU WILL REMEMBER TO NOTE THIS HERE
+
+
+class UserChoices {
+	constructor() {
+		this.isHskSet2active = true; //hsk 2012 set is active
+		this.isHskSet3active = true; //hsk 3.0 set is active
+	}
+}
+
+
+//main function creates ONE instance of this class, CALLED: "mainHskData"
+//this can prob be converted into an OBJECT
+class HskSetStatisticalInfo {
+	//ideally will take a "user choice" variable as input for the constructor
+	//may contain info on hsk sets, including:
+		//markup text for each level, 
+		//which levels are active (if the user deletes any levels)
+		//number of characters of each level
+	constructor() {
+		this.totalCountHskSet2 = [0,0,0,0,0,0]; //array of counters for num words of each level, 1-6
+
+//PLEASE MODULARISE: HSK 3.0 LEVEL 7-9
+		this.totalCountHskSet3 = [0,0,0,0,0,0,0]; //array for hsk 3.0
+	}
+
+
+	printActiveHskLevels() {
+		//print active levels at top, with correct highlights for each level, and the cumulative counts for distinct words from each level
+		//current printing is from findAllMatches: $("#console").append("<br><span class = hsk" + hskSet + hskLevel + ">hsk set: " + hskSet + "; hsk level: " + hskLevel + "</span>");
+		//that code simply printed as each level was searched, this will print separately at the end
+		//this.calculateCorrectCountsHskSet2(); //special class method to adjust counts since at the moment, set 2 is a cumulative list
+		//BUGWATCH: NEW SET 2 HAS BEEN FIXED
+		var i;
+		$("#console").append("<br>Totals set 2 (HSK 2012): ");
+		for (i = 0; i < this.totalCountHskSet2.length; i++) {
+			$("#console").append(" Level " + (i + 1) + ": " + this.totalCountHskSet2[i]);
+		}
+		$("#console").append("<br>Totals set 3 (HSK 3.0): ");
+		for (i = 0; i < this.totalCountHskSet3.length; i++) {
+			$("#console").append(" Level " + (i + 1) + ": " + this.totalCountHskSet3[i]);
+		}
+	}
+
+	//special class method to adjust counts since at the moment, set 2 is a cumulative list
+	calculateCorrectCountsHskSet2() {
+		var sum = 0;
+		var i;
+		for (i = 0; i < this.totalCountHskSet2.length; i++) {
+			this.totalCountHskSet2[i] -= sum;
+			sum += this.totalCountHskSet2[i];	
+		}
+	}
+}
+
+
+
+//Class for individual entries on hsk word lists
+//CURRENTLY DOES NOT CONTAIN THE LEVEL, SINCE THIS IS ON THE ARRAY WHICH CONTAINS WORDS FROM ONE PARTICULAR LEVEL
+class WordFromHskList {
+	constructor(hskW, hskD, hskCh) {
+		this.hasBeenDefined = false; //CHECK CAREFULLY: I THINK "HASBEENFOUND" IS FOR THE INPUT
+								//CHARACTERS (FOUND AS AN HSK WORD ON A PREVIOUS LIST), AND HASBEENDEFINED IS FOR THE HSK LIST WORDS (CHECKED "HASBEENDEFINED": THIS APPEARS CORRECT FOR THIS VARIABLE)
+								//if "hasBeenDefined" is true, this word has been found in the main input stream, and is stored in the main input array as the "chineseWord" member data for the first character of the first appearance of the word (first appearance as judged by the algorithm).
+		this.hskWd = hskW;
+		this.hskDefn = hskD;
+		this.hskStdCourseChapter = hskCh; //THIS WILL CONTAIN THE CHAPTER THE WORD COMES FROM
+				//MUST BE ADDED TO THE EXTERNAL FILES WITH THE ARRAY OF WORDS AND DEFINITIONS, THEN ADDED TO THIS CODE: hsk2012LxWordPlusDefnList[idx][j][0], hsk2012LxWordPlusDefnList[idx][j][1] --> THESE ARRAYS WILL HAVE AN EXTRA ENTRY, SO THE CHAPTER NUMBER WILL BE LIKE THIS: hsk2012LxWordPlusDefnList[idx][j][2] (IT WILL BE THE THIRD ENTRY IN THE ARRAY, NECESSARY SINCE IT WON'T BE PRESENT FOR EVERY HSK LEVEL - ONLY THE 2012 WORD LIST, WHICH IS THE MOST IMPORTANT)
+		this.pinyinNoSpaces = this.setPinyin();
+	}
+	setPinyin() {
+		var pinyin = "";
+		if (this.hskDefn.length > 0) {
+			var matches = this.hskDefn.match(/(?<=[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+.*\t)(.*)(?=\s*\t)/); //any chinese chars, followed by any chars, then tab-PINYIN-tab
+			if (matches !== null) {
+				pinyin = matches[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				pinyin = pinyin.replace(/\W/g, ""); //remove spaces and anything else
+			}
+		}
+		//(code copied from below: this.mainArray[idx].setInputCharDataFirstChar(hskWord, pinyin);)
+		return pinyin;
+	}
+}
+
+
+//CLASS FOR DICTIONARY FOR ONE HSK LEVEL: EACH OBJECT contains a single array for one level of the hsk word class
+//constructor is called by parent "master" class
+class SingleArraySingleLevelWordFromHskList {
+	constructor(hskS, hskL) {
+		this.hskSet = hskS;
+		this.hskLvl = hskL;
+		this.singleLevelArray = []; //1-d array of objects of type: WordFromHskList
+		this.setupSingleLevelArray();
+		this.countMatchesFullCount = 0; //full list of potential matches, not adjusted for any definitions that are overwritten, may need an array variable in the "master" method
+	}
+	//constructor calls this method
+	//only this method imports data from the key array files = //IMPORT VARIABLE from the word+definition ARRAY files
+	setupSingleLevelArray() {
+		//$("#console").append("<br>reached setup of single level of array");
+		var idx = this.hskLvl - 1;
+		var j;
+
+
+		//ADDING CHAPTERS FOR HSK 5: NEW FEATURE: NEW CRUCIAL LINE OF CODE
+		if (this.hskSet == HSK_2012) {
+			for (j = 0; j < hsk2012LxWordPlusDefnList[idx].length; j++) { 
+				if (hsk2012LxWordPlusDefnList[idx][j].length > 2) {
+					this.singleLevelArray[j] = new WordFromHskList(hsk2012LxWordPlusDefnList[idx][j][0], hsk2012LxWordPlusDefnList[idx][j][1], hsk2012LxWordPlusDefnList[idx][j][2]);
+				}
+				else {
+					this.singleLevelArray[j] = new WordFromHskList(hsk2012LxWordPlusDefnList[idx][j][0], hsk2012LxWordPlusDefnList[idx][j][1], 0); //[index for level][index for word/defn][0: word, 1: defn] ***new format: [0: word, 1: defn, 2: chapter]
+				}
+			}
+		}
+		if (this.hskSet == HSK_3) {
+			for (j = 0; j < hsk3LxWordPlusDefnList[idx].length; j++) {
+				this.singleLevelArray[j] = new WordFromHskList(hsk3LxWordPlusDefnList[idx][j][0], hsk3LxWordPlusDefnList[idx][j][1], 0); //[index for level][index for word/defn][0: word, 1: defn] ***new format: [0: word, 1: defn, 2: chapter]
+			}
+		}
+	}
+}
+
+
+
+//MASTER ARRAY OF WORDS FROM HSK LISTS (DICTIONARY CLASS)
+	//the program creates one object of this class, called "hskListsFullArray" - contains the whole dictionary
+	//initialised at load time BEFORE ANY CLICK EVENTS: must not alter it (just a complete set of the data with no reference to user options).
+//words and their definitions are correctly matched in the array files; correct set and level choices must be handled correctly here in this code.
+//CAREFUL: NOW CHANGING: 
+	//ARRAY FOR EACH LIST; ARRAY FOR ALL SUCH ARRAYS FROM ONE SET; 2 OF THOSE BIG ARRAYS
+class MasterArrayOfWordFromHskList {
+	constructor() { //DEFAULT SETUP, HAS NO OPTIONS, ONLY INITIALISES ALL THE HSK LISTS
+		this.hsk2012Array = []; //array will have 6 "SingleArray" objects
+		this.hsk3Array = []; //array will have 7 "Single Array" objects
+		this.setupArrays(); //setup once only, both arrays
+	}
+	setupArrays() {
+		var idx = 0; //index for levels (outer level of the .js word-defn files)
+		var hskLvl = idx + 1; //explicitly distinguish "level" of set and "index" array
+		for (idx = 0; idx < hsk2012LxWordPlusDefnList.length; idx++) { //outer array
+			hskLvl = idx + 1;
+			this.hsk2012Array[idx] = new SingleArraySingleLevelWordFromHskList(HSK_2012, hskLvl);
+		}
+		for (idx = 0; idx < hsk3LxWordPlusDefnList.length; idx++) { 
+			hskLvl = idx + 1;
+			this.hsk3Array[idx] = new SingleArraySingleLevelWordFromHskList(HSK_3, hskLvl);
+		}
+		//$("#console").append("this.hsk2012Array[0] = " + JSON.stringify(this.hsk2012Array[0]));
+	}
+}
+
+
+
+
+
+
+				//------METHODS RELATING TO THE INPUT STREAM------//
+
+
+
+
+
+
+
+
+
+//record keeping for the characters from input, does not contain the actual characters
+//PRINTING IS HANDLED BY THIS CLASS, IE THE CLASS FOR THE INPUT CHARACTERS, NOT THE CLASS FOR THE DICTIONARY DEFINITIONS
+class CharacterFromInput {
+	constructor() {
+		this.hasBeenFound = false; //set to true if already found as an hsk word
+			//if it is not the first character in a multi-char word, hasBeenFound is true, which is used to distinguish it from a character that is not part of any word (hskVocabSet could also be used, but that is not neat programming)
+		this.isFirstChar = false; //set to one if it is the first character
+		this.isLastChar = false; //set to one if it is the last char
+		this.isOnlyChar = false; //set to one for a one-character word (redundant but designed to avoid programming errors).
+		//this.isChineseCharacter = false; //SHOULD NOT BE NEEDED, SINCE THE ALGORITHM
+					//DOES NOT ITERATE THROUGH THE INPUT TEXT, IT ONLY ITERATES THROUGH THE DICTIONARIES, USING STRING SEARCH TO SEARCH THE INPUT TEXT
+		this.chineseWord = ""; //only for the first character of a valid word
+		this.pinyinNoSpaces = ""; //first character of a valid word will have that class when doing markup
+		this.hskVocabSet = 0;
+		this.hskVocabLevel = 0;
+		this.definitionStringToPrint = "";
+	}
+
+	//takes an object of same type, tests whether same word, only works for first char of word
+	//"sameness" here requires: same chinese word, same hsk set and level
+	testIsEqual(obj) { 
+		var isSameWd = false;
+		if (this.chineseWord.length > 0 && this.hskVocabSet == obj.hskVocabSet &&
+						this.hskVocabLevel == obj.hskVocabLevel && 
+						this.chineseWord == obj.chineseWord) {
+			isSameWd = true;
+		}
+		return isSameWd;
+	}
+
+
+
+	//Sets an inner character of a word, as opposed to an "end" character (first/last)
+	//program will call it for all characters, then write over for the first and last character
+	setInputCharDataInnerChar(hskSet, hskLevel) {
+		this.hasBeenFound = true;
+		this.isFirstChar = false;
+		this.isLastChar = false;
+		this.isOnlyChar = false;
+		this.hskVocabSet = hskSet;
+		this.hskVocabLevel = hskLevel;
+		this.chineseWord = "";
+		this.pinyinNoSpaces = "";
+		this.definitionStringToPrint = "";
+	}
+	//same thing, for first then last character
+	setInputCharDataFirstChar(hskWord, pinyin) {
+		this.isFirstChar = true;
+		this.isLastChar = (hskWord.length == 1);
+		this.isOnlyChar = this.isLastChar;
+		this.chineseWord = hskWord;
+		this.pinyinNoSpaces = pinyin;
+	}
+	setInputCharDataLastChar() {
+		this.isLastChar = true;
+	}
+
+
+
+//MODULARISE: SHOULD NOT NEED CHANGING
+	//THIS IS THE ONLY METHOD THAT CAN UPDATE A DEFINITION STRING (NOT CHECKED: THIS SHOULD BE THE CASE)
+	//pre: created a character; set the hsk set and level; found a definition with a length > 0 (proper definition OR <<DEFINITION NOT FOUND>>)
+		//all data except definition have been set, including pinyin, chinese word etc
+	//post: added the definition and any html codes as needed: usually <span> tags and pinyin finder tags
+	setDefinitionAndHtml(definition) {
+		if (definition.length > 0) {
+			this.definitionStringToPrint = "<span class=hsk" + this.hskVocabSet + this.hskVocabLevel + ">" + definition + "</span>";
+
+			//pinyin wrapper for the definition string (has no impact on the printing/highlighting of the chinese character in the reading text which is printed on the screen above the definition list)
+			if (this.pinyinNoSpaces.length > 0) {
+				this.definitionStringToPrint = "<span class=" + this.pinyinNoSpaces + ">" + this.definitionStringToPrint + "</span>";
+			}
+		}
+	}
+}
+
+
+
+//THIS IS THE "HIGHEST" LEVEL CLASS: THE INPUT STRING CHARACTER ARRAY CLASS
+//contains the main input string, and one array of "CharacterFromInput" for record keeping
+//One object of this class; contains an array of "CharacterFromInput"
+class ArrayOfCharacterFromInput {
+	constructor(userInputString) {
+		this.mainInputString = new String(userInputString);
+		this.mainArray = new Array(userInputString.length);
+		this.finalMarkup = ""; //final markup to be printed
+		this.unfoundCharacters = ""; //characters outside of hsk list
+		this.counterNumberDistinctWordsCurrentLevel = 0; //how many DISTINCT words from the current hsk set have been found?
+				//MODULARISE: COUNTERNUMBERDISTINCT WORDS: STRANGE THING TO PUT IN THIS CLASS???
+		var i;
+		for (i = 0; i < this.mainArray.length; i++) {
+			this.mainArray[i] = new CharacterFromInput();
+		}
+		$("#console").append("<br>Input length = " + this.mainArray.length + " characters");
+	}
+
+
+//MODULARISE: EVERYTHING HERE IS ABOUT TO CHANGE
+	//RECEIVES AN ARRAY WHICH IS ONE LIST FROM ONE SET
+	//function to be called from main, to create the final list of all definitions
+	//each call will send one hsk list of words, and the associated list of definitions
+	//postcondition: object contains number of words defined from that list (does not decrement for words that are later erased)
+
+
+//CHANGING TO ARRAY: THIS METHOD NOW PASSES IN AN ARRAY OF HSK WORDS IN THE NEW OBJECT FORMAT
+				//BUT: MUST HANDLE ANYTHING WHERE YOU FIND A WORD OR A DEFSTRING
+				//pass in object of class: SingleArraySingleLevelWordFromHskList (attached to the master array object defined in main function)
+	//findAllMatchesOneHskList(singleArrayHskWordObjects) 
+		//singleArrayHskWordObjects.singleLevelArray[i].hskWd = hskWordArray[i]
+		//singleArrayHskWordObjects.singleLevelArray[i].hskDefn = hskDefThisWord
+		//singleArrayHskWordObjects.hskSet
+		//singleArrayHskWordObjects.hskLvl
+		//singleArrayHskWordObjects.singleLevelArray.length = hskWordArray.length
+	findAllMatchesOneHskList(singleArrayHskWordObjects) { //, hskSet, hskLevel, hskWordArray, hskDefsString) {}
+		this.counterNumberDistinctWordsCurrentLevel = 0;
+		var hasBeenDefined = false; //update all char data for prev defined words, except defn
+		var i;
+		var idx;
+		var frameLength;
+		var hskDefThisWord = "";
+
+		//for loop: same loop to search the singleLevelArray (NEW) instead of the hskWordArray (OLD)
+		//while loop: same loop to search the input stream for matches
+
+		var testCode = true;
+		if (testCode) {
+
+			for (i = 0; i < singleArrayHskWordObjects.singleLevelArray.length; i++) {
+				hasBeenDefined = false; //reset for next hsk word
+				frameLength = singleArrayHskWordObjects.singleLevelArray[i].hskWd.length;
+				idx = this.mainInputString.indexOf(singleArrayHskWordObjects.singleLevelArray[i].hskWd); //first match
+				while (idx != -1) { //update array entry and find all matches
+					if (this.decideShouldUpdate(idx, frameLength)) {//check valid word boundary
+						if (!hasBeenDefined) {
+							hskDefThisWord = singleArrayHskWordObjects.singleLevelArray[i].hskDefn;
+							this.counterNumberDistinctWordsCurrentLevel++;
+							
+							//MODULARISE: NOT IDEAL SOLUTION AS YET:
+							//new code to add the chapter number
+							if (singleArrayHskWordObjects.singleLevelArray[i].hskStdCourseChapter != 0) {
+								hskDefThisWord += " (Chapter " + singleArrayHskWordObjects.singleLevelArray[i].hskStdCourseChapter + ")";
+							}
+							
+							
+						} //ENDIF (!HASBEENDEFINED)
+						this.updateEntriesForOneFrame(hasBeenDefined,
+							singleArrayHskWordObjects.hskSet, 
+							singleArrayHskWordObjects.hskLvl,
+							singleArrayHskWordObjects.singleLevelArray[i].hskWd, hskDefThisWord, idx, frameLength); //MODULARISE: HSK WORD CLASS KNOWS:
+							//HASBEENDEFINED, THE HSK WORD, AND THE HSK DEFINITION
+								//ALSO HSK SET AND LEVEL ARE ON THE SINGLELEVELARRAY CLASS
+								//PLS PASS FEWER PARAMETERS
+						hasBeenDefined = true; //add definition to array once only
+					} //ENDIF (THIS.DECIDESHOULDUPDATE) 
+					idx = this.mainInputString.indexOf(singleArrayHskWordObjects.singleLevelArray[i].hskWd, (idx + frameLength)); //find next match
+				} //ENDWHILE
+			} //ENDFOR
+		} else {
+
+
+
+		//**********BEING UPDATED: THIS CODE WILL NOT RUN WITH NEW PARAMETER LIST, BEING PHASED OUT**********
+			var hskDefThisWord = "";
+			var myRegExp = new RegExp();
+			//each iteration takes one word from the given hsk list, finds ALL matches for it in the user input string, and updates ALL the entries in this.mainArray
+			for (i = 0; i < hskWordArray.length; i++) {
+				hasBeenDefined = false; //reset for next hsk word
+				frameLength = hskWordArray[i].length; //set frame length for this hsk word
+				idx = this.mainInputString.indexOf(hskWordArray[i]); //first match
+				while (idx != -1) { //update array entry and find all matches
+					if (this.decideShouldUpdate(idx, frameLength)) {//check valid word boundary
+						if (!hasBeenDefined) {
+							myRegExp = "(?<=\\s)" + hskWordArray[i] +
+							"[^\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]" + "[^«]+"; //REGEXP FOR THE DEFINITION: space/tab lookbehind character, followed by the word itself, followed by any non-chinese character, followed by anything until the end char («) is reached.
+							hskDefThisWord = hskDefsString.match(myRegExp); //definition (returns an array) 
+							if (hskDefThisWord == null) {
+								hskDefThisWord = "DEFINITION FOR: " + hskWordArray[i] + " NOT FOUND";
+							}
+							else {
+								hskDefThisWord = hskDefThisWord[0]; //convert from array to string
+							}
+							this.counterNumberDistinctWordsCurrentLevel++;
+						} //ENDIF (!HASBEENDEFINED)
+						//CHANGING: THIS WILL NOT WORK SOON
+						this.updateEntriesForOneFrame(hasBeenDefined, hskSet, hskLevel, hskWordArray[i], hskDefThisWord, idx, frameLength);
+						hasBeenDefined = true; //add definition to array once only
+					} //ENDIF (THIS.DECIDESHOULDUPDATE)
+					idx = this.mainInputString.indexOf(hskWordArray[i], (idx + frameLength)); //find next match
+				} //ENDWHILE
+			} //ENDFOR
+		} //ENDELSE, END BIFURCATED CODE
+	} //END FINDALLMATCHES
+
+
+
+
+
+
+
+	//pre: an hsk word has been found in the input stream, and its position in the input stream, and its length, are known. It does not need to know the word itself or the position of the word in the hsk lists.
+	//post: returns boolean whether to update (based on whether it has valid word endings, from checking the word boundary flags: first and last char must be word boundary or the characters are not yet found and assigned an entry).
+	//inv: does not change local data (only changes one local var).
+	decideShouldUpdate(idx, frameLength) {
+		//tests ends of word using main array in object of this array class
+			//returns true if both ends are valid (word boundary or blank)
+			//take special care with one-syllable words, first = last!!!
+		var shouldUpdate = false;
+		if ((!this.mainArray[idx].hasBeenFound || this.mainArray[idx].isFirstChar) && 
+			(!this.mainArray[idx+frameLength-1].hasBeenFound || this.mainArray[idx+frameLength-1].isLastChar)) 
+			{shouldUpdate = true;} //word ends are valid
+		//$("#console").append("<br>In 'decideshouldupdate.' chinese word this position: " + this.mainArray[idx].chineseWord + " index = " + idx + " set = " + this.mainArray[idx].hskVocabSet + " lvl = " + this.mainArray[idx].hskVocabLevel + " shouldupdate = " + shouldUpdate);
+		return shouldUpdate; //this should work for a one-character word, so no trouble
+	}
+
+	//pre: 
+		//hsk word has been found, word boundaries have been tested, and there is no overlap.
+		//index of word in the input stream is known
+		//whether the hsk word has been defined earlier in the input stream is passed into the function
+		//hskDefThisWord is a definition if the word has not been defined, and is left blank ("") if the word has been defined. Therefore, "hasBeenDefined" and hskDefThisWord.length == 0 should have the same value (but they are used in different places because they have different meanings, so this is less error prone).
+	//post: 
+		//all characters under this reading frame have been blanked, and rewritten. 
+		//one set of data for one word has populated a CharacterFromInput object in the array
+		//***OTHER WORDS UNDER FRAME HAVE HAD THEIR DEFINITIONS MOVED (they are counted in the final tallies, but otherwise are wiped)
+	//inv: words involving any characters not in this frame unaffected (words with same characters outside this frame, appearing later in the input stream, might have definition added)
+	updateEntriesForOneFrame(hasBeenDefined, hskSet, hskLevel, hskWord, hskDefThisWord, idx, frameLength) {
+		var i;
+		var pinyin = "";
+		
+		//move any definitions found under the reading frame, and then reset the frame by calling the class method setInputDataInnerChar
+		for (i = 0; i < frameLength; i++) {
+			if (this.mainArray[idx + i].chineseWord.length > 0 &&
+						this.mainArray[idx + i].definitionStringToPrint.length > 0) {
+				this.moveDefinitionAfterClash(idx + i);
+			}
+			this.mainArray[idx + i].setInputCharDataInnerChar(hskSet, hskLevel);
+				//this sets: hasBeenFound = true, hskSet, hskLevel
+					//other booleans are set to false, and strings are blanked
+					//this is applied to all characters, even word ending chars (be careful)
+		}
+
+		//find pinyin
+		if (hskDefThisWord.length > 0) {
+			var matches = hskDefThisWord.match(/(?<=[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+.*\t)(.*)(?=\s*\t)/); //any chinese chars, followed by any chars, then tab-PINYIN-tab
+			if (matches !== null) {
+				pinyin = matches[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				pinyin = pinyin.replace(/\W/g, ""); //remove spaces and anything else
+			}
+		}
+		this.mainArray[idx].setInputCharDataFirstChar(hskWord, pinyin);
+		this.mainArray[idx + frameLength - 1].setInputCharDataLastChar();
+		if (!hasBeenDefined) {this.mainArray[idx].setDefinitionAndHtml(hskDefThisWord);}
+	}
+
+
+
+//MODULARISE: THIS COULD CAUSE PROBLEMS (HAVEN'T CHECKED, JUST GUESSING)
+	//pre: definition clash found
+	//post: downstream search added definition to one position OR search key not found, exit
+	//inv: any elements upstream cannot be affected (definition can only be moved downstream)
+		//any elements that are part of other hsk levels cannot be affected (can only alter a downstream unit that has an hsk set/level record
+	moveDefinitionAfterClash(startIdx) {
+		//start search from startIdx+1 look for word with same hsk set/level, same word, add definition
+		var counter = startIdx + 1;
+		var defnHasBeenFound = false;
+		while (counter < this.mainArray.length && !defnHasBeenFound) {
+			if (this.mainArray[startIdx].testIsEqual(this.mainArray[counter])) {
+				this.mainArray[counter].definitionStringToPrint = this.mainArray[startIdx].definitionStringToPrint;
+				defnHasBeenFound = true;
+			}
+			counter++;
+		}
+	}
+
+
+	//IF THIS CODE BECOMES BUGGY: don't use "processed input" - add a member variable to the main Character class, to store the character at each index (character might not be Chinese, might be punctuation), then assemble from these characters within this current Character Array class.
+
+	prepareReadingTextFromInput(processedInput) {
+		var markupText = "";
+		var i;
+		for (i = 0; i < this.mainArray.length; i++) {
+			if (this.mainArray[i].isFirstChar) {markupText += "<span class='hsk" + this.mainArray[i].hskVocabSet + this.mainArray[i].hskVocabLevel + " " + this.mainArray[i].pinyinNoSpaces + "'>";}
+			if (this.mainArray[i].hskVocabSet == 0 && processedInput.charAt(i).search(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/) != -1) {
+				markupText += "<span class=hskNull" + ">"; //chinese char not part of hsk lists
+			}
+			markupText += processedInput.charAt(i); //add the actual character here
+			if (this.mainArray[i].isLastChar) {markupText += "</span>";}
+			if (this.mainArray[i].hskVocabSet == 0 && processedInput.charAt(i).search(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/) != -1) {
+				markupText += "</span>";
+			}
+		}
+		this.finalMarkup = markupText;
+	}
+
+
+	prepareListUnfoundCharacters(processedInput) {
+		var i;
+		for (i = 0; i < this.mainArray.length; i++) {
+			if (this.mainArray[i].hskVocabSet == 0) {
+				this.unfoundCharacters += processedInput.charAt(i);
+				if (i + 1 < this.mainArray.length && this.mainArray[i+1].hskVocabSet != 0) {
+					this.unfoundCharacters += "*"; //if there is a word boundary, must set it explicitly
+				}
+			}
+		}
+		this.unfoundCharacters = this.unfoundCharacters.replace(/[^\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+/g, ".");
+		if (this.unfoundCharacters.charAt(0) == ".") {this.unfoundCharacters = this.unfoundCharacters.substring(1);} //handle the annoying comma at the start of output
+		const tempArray = this.unfoundCharacters.split(".");
+		const tempSet = new Set(tempArray); //ELIMINATE REPETITION
+		this.unfoundCharacters = [...tempSet]; //BAD, UNFOUNDCHARS SHOULD BE A STRING
+	}
+
+
+	//called once from main function
+	//pre: list of definitions is ready
+	//post: list is printed
+	//inv: all underlying logical data unaffected (only prints to screen)
+	printDefsToScreen() {
+		var i;
+		var count = 0;
+		for (i = 0; i < this.mainArray.length; i++) {
+			if (this.mainArray[i].definitionStringToPrint != "") {
+				$("#definitionsList").append("<br><span id=char" + i + "defn class=numWordDefn><span class=defnNum>#" + i + "</span>: " + 
+					this.mainArray[i].definitionStringToPrint + "</span>");
+						//"numWordDefn" refers to the full string: #num - word - defn
+				count++;
+			}
+		}
+		$("#definitionsListHeader").text("Total definitions: " + count);
+	}
+
+}
+
+
+
+
+
+
+//TO DO: PUT THIS INSIDE A CLASS
+function processInput(str) {
+	//assumes input string is mixed chinese/english
+	//delete anything with the regex below
+	str = str.replace(/[A-z][^\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]*/g, ""); //(delete anything that starts with a letter and is composed of non-chinese characters).
+	if (str.length > MAX_INPUT) {str = str.substring(0, MAX_INPUT-1);}
+	return str;
+}
+
+
+
+
+function highlightFromPinyin(event) {
+	//temp fix only
+	//must printout the whole definition at the top: may need to add other class wrappers
+	var jqMatches; //jquery object for the matches
+	var jqElements; //dynamic jquery object for the further search from the matches
+	var i;
+	var highlightClass = $("#pinyinSearchBox")[0].value; //works
+	if (highlightClass.length > 0) {
+		jqMatches = $("." + highlightClass);
+		jqMatches.addClass("pinyinMatchFound");
+		jqElements = jqMatches.parent().children(".defnNum");
+		jqElements.addClass("pinyinMatchFound");
+		$("#userChoiceConsoleOutput").text("Matches found: " + jqMatches.length);
+		jqElements = jqMatches.parent(".numWordDefn");
+		for (i = 0; i < jqElements.length; i++) {
+			$("#matchesFoundOutput").prepend("<br>" + jqElements.eq(i).html() + "<br>");
+		}
+	}
+	else {
+		$("#userChoiceConsoleOutput").text("You need to enter something in the box for this to work");
+	}
+	event.preventDefault();
+}
+
+
+
+
+document.getElementById("submitButton1").addEventListener("click", doMainFn); 
+document.getElementById("formForPinyinSearchBox").addEventListener("submit", highlightFromPinyin); 
+var hskListsFullArray = new MasterArrayOfWordFromHskList(); //change name: masterDictionaryObject
+	//hskListsFullArray.hsk2012Array[idx] (single level array)
+	//hskListsFullArray.hsk3Array[idx] (single level array)
+
+
+
+
+function doMainFn(event) {
+	var idx;
+	var processedInput = processInput($("#textInput").val());
+	var mainInputCharacterArray = new ArrayOfCharacterFromInput(processedInput);
+	var mainHskData = new HskSetStatisticalInfo();
+
+//MODULARISE: THIS WILL USE THE HSKWORD CLASS
+//MODULARISE/BUG FIX: CHANGE THE INDEX, MUST BECOME >= ZERO, AND SHOULD PROB SEARCH UP NOT DOWN
+	for (idx = 6; idx >= 0; idx--) {
+
+
+		/* SUSPECTED REDUNDANT CODE: NEW ARRAY SYSTEM MAKES THIS REDUNDANT
+		var modIndex = idx+1; //EXTRA BECAUSE OLD VARS WERE DEFINED WITH [1] AS STARTING INDEX
+		var wordArrayTemp = hsk3LxChineseList[modIndex].split(","); //REDUNDANT WITH NEW ARRAY SYSTEM: MAY MEAN THAT THE ENTIRE FILE FOR THE hsk3LxChineseList IS REDUNDANT
+		var hskSet = 3; //REDUNDANT WITH NEW ARRAY SYSTEM
+		var hskLevel = idx+1; //REDUNDANT WITH NEW ARRAY SYSTEM
+		var hskDefStringTemp = hsk3LxDefinitionList[modIndex]; //REDUNDANT WITH NEW ARRAY SYSTEM
+		*/
+
+		mainInputCharacterArray.findAllMatchesOneHskList(hskListsFullArray.hsk3Array[idx]); //, hskSet, hskLevel, wordArrayTemp, hskDefStringTemp; //THIS IS *NOT* REDUNDANT: THIS IS THE MAIN WORKHORSE
+		$("#console").append("<br><span class = hsk3" + (idx + 1) + ">hsk set: 3" + "; hsk level: " + (idx + 1) + "</span>");
+
+		mainHskData.totalCountHskSet3[idx] = mainInputCharacterArray.counterNumberDistinctWordsCurrentLevel;
+	}
+	//most important list is this one; most important list 2nd, because if the word is found again, the definition overwrites
+	for (idx = 5; idx >= 0; idx--) {
+
+
+		/* SUSPECTED REDUNDANT CODE: NEW ARRAY SYSTEM MAKES THIS REDUNDANT
+		var modIndex = idx+1;
+		var wordArrayTemp = hsk2012LxChineseList[modIndex].split(","); //REDUNDANT WITH NEW ARRAY SYSTEM: MAY MEAN THAT THE ENTIRE FILE FOR THE hsk2012LxChineseList IS REDUNDANT
+		var hskSet = 2; //REDUNDANT: SEE ABOVE
+		var hskLevel = idx+1; //REDUNDANT: SEE ABOVE
+		var hskDefStringTemp = hsk2012LxDefinitionList[modIndex]; //REDUNDANT: SEE ABOVE
+		*/
+
+
+
+		mainInputCharacterArray.findAllMatchesOneHskList(hskListsFullArray.hsk2012Array[idx]); //, hskSet, hskLevel, wordArrayTemp, hskDefStringTemp; //THIS IS *NOT* REDUNDANT: THIS IS THE MAIN WORKHORSE
+		$("#console").append("<br><span class = hsk2" + (idx + 1) + ">hsk set: 2" + "; hsk level: " + (idx + 1) + "</span>");
+
+		mainHskData.totalCountHskSet2[idx] = mainInputCharacterArray.counterNumberDistinctWordsCurrentLevel;
+	}
+
+	mainHskData.printActiveHskLevels();
+
+	mainInputCharacterArray.prepareReadingTextFromInput(processedInput);
+	mainInputCharacterArray.prepareListUnfoundCharacters(processedInput);
+	$("#console").append("<br>The unfound characters are: " + 
+		mainInputCharacterArray.unfoundCharacters);
+	$("#chineseOutput").append("<br>Chinese input:<br>" + 
+		mainInputCharacterArray.finalMarkup);
+	mainInputCharacterArray.printDefsToScreen(); 
+
+	document.getElementById("submitButton1").removeEventListener("click", doMainFn); 
+
+	event.preventDefault();
+}
+
+
+	/*
+		main workhorses for detecting chinese characters:
+		text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/g);
+		text.match(/(?<=\s)[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+/g); //match continuous string of chinese chars/words with whitespace before them *eliminates lists of classifiers such as "ge" which appear in some definitions
+		
+		(?<=[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+\s+)(\w*[^\w\s]\w*)*\s*(\w*[^\w\s]\w*)(?=\s*\t)
+		  ***EXTRACTS MOST PINYIN, BUT NOT ALL***
+		
+		
+		//pinyin normalizer:
+		pinyin = matches[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+		
+		
+		//CLEANING 2012 SETS FOR CREATING THE HSK WORD CLASS:
+				"»\d+\s\t
+				«" \+
+				«" \+\n"»\d+\s\t	(CHECK START AND END)
+				
+				MERGE COLS:
+				["		", "		"],
+				
+		
+		
+		  
+	*/
+
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
