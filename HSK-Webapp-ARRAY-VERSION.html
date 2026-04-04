@@ -3,10 +3,11 @@
 
 <!--
 CREATED BY:
-	DEM NISBET (AKA DEMNEPTUNE ON THE WEB, TIDES OF NEPTUNE ON SPOTIFY)
+	"THE NEPTUNE"
 	BEGUN: 2023-08-xx
 LICENSE: 
 	GNU-GPL (FOR ALL PROGRAMMING CODE)
+	UNKNOWN (FOR WORD LISTS AND TEXTS)
 PURPOSE: 
 	USER ENTERS TEXT, PROGRAM ANALYSES ALL HSK WORDS AND GIVES SIMPLE DEFINITIONS
 -->
@@ -14,192 +15,139 @@ PURPOSE:
 <html>
 <head>
 	
-	<style>
-		
-		
-		
-		.hsk26 {background: #ff80ff; text-decoration: underline #ff80ff;}
-		.hsk25 {background: aqua;}
-		.hsk24 {background: lime;}
-		.hsk23 {background: thistle;}
-		.hsk22 {background: coral;}
-		.hsk21 {background: bisque;}
-		.hsk37 {background: DarkKhaki;}
-		.hsk36 {background-color:hsl(240, 100%, 90%);}
-		.hsk35 {background-color:hsl(147, 50%, 90%);}
-		.hsk34 {background-color:hsl(0, 100%, 90%);}
-		.hsk33 {background: grey;}
-		.hsk32 {background: orange;}
-		.hsk31 {background: yellow;}
-		.hskNull {font-weight: bold; color:red;}
-		
-		.pinyinMatchFound {
-			font-size:125%;
-			border: 1px solid black;
-			outline: #4CAF50 solid 2px;
-			margin: auto;
-			padding: 1px;
-			text-align: center;			
-		}
+	<link href="HSK-Webapp-styles.css" rel="stylesheet">
 
-
-		.chineseText {
-			font-family: "Times New Roman", Times, serif;
-			font-size: 110%;
-			line-height: 140%;
-		}
-
-/* "Times New Roman", Times, serif, KaiTi, STKaiti, DFKai-SB, BiauKai, STHeitiSC-Light, STHeitiTC-Light; Garamond;  */
-	
-		.chineseAndEnglish{
-			font-family: "Times New Roman", Times, serif;
-			font-size:110%; 
-		}
-
-		* {
-			box-sizing: border-box;
-		}
-
-		/* Create two equal columns that floats next to each other */
-		.column {
-			float: left;
-			width: 50%;
-			padding: 10px;
-			/*height: 300px;  Should be removed. Only for demonstration */
-		}
-
-		/* Clear floats after the columns */
-		.row:after {
-			content: "";
-			display: table;
-			clear: both;
-		}
-
-		.button {
-		  border: none;
-		  color: white;
-		  padding: 16px 32px;
-		  text-align: center;
-		  text-decoration: none;
-		  display: inline-block;
-		  font-size: 16px;
-		  margin: 4px 2px;
-		  transition-duration: 0.4s;
-		  cursor: pointer;
-		}
-
-		.button1 {
-		  background-color: white; 
-		  color: black; 
-		  border: 2px solid #4CAF50;
-		}
-
-		.button1:hover {
-			background-color: #4CAF50;
-			color: white;
-		}
-		.button:active {
-			background-color: #3e8e41;
-			box-shadow: 0 5px #666;
-			transform: translateY(4px);
-		}
-
-		.button2 {
-		  background-color: white; 
-		  color: black; 
-		  border: 2px solid #008CBA;
-		}
-
-		.button2:hover {
-		  background-color: #008CBA;
-		  color: white;
-		}
-
-	</style>
 
 </head>
 
 <body>
+<div id="app-wrapper">
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <h2 id="pageHeading">&#x2615; HSK Web App</h2>
+            <span class="version-tag" id="firstPar">Alpha Testing</span>
+        </div>
 
-<title>&#x2615; HSK Web App</title>
-<h1 id="pageHeading">HSK Web App</h1>
-<h2 id="firstPar">alpha testing</h2>
-	<ul>TO DO
-	<li>FIND DUPLICATE WORDS</li>
-	<li>Make buttons functional</li>
-	<li>change css so user feedback of defnitions has neater formatting/ improve highlighting of selected words</li>
-	<li>stop app from recording extra item found because it searches its own feedback</li>
-	</ul>
+        <div class="sidebar-scroll">
+            <div class="control-group">
+                <form id="formForChineseInput">
+                    <label for="textInput">Enter Chinese Text</label>
+                    <textarea id="textInput" name="textInput" placeholder="Paste Chinese text here..."></textarea>
+                </form>
+                <button id="submitButton1" class="primary-btn">Submit</button>
+                
+                <details style="font-size: 0.75rem; margin-top: 12px; color: #666;">
+                    <summary style="cursor: pointer; font-weight: bold;">App Instructions</summary>
+                    <ul style="padding-left: 15px; margin-top: 5px;">
+                        <li>Removes English text, truncates over limit (20,000 chars).</li>
+                        <li>HSK lists are sourced from the web; mostly complete.</li>
+                        <li>Errors in word divisions possible; simply searches higher levels first.</li>
+                        <li>Definitions listed with their position # in the filtered text.</li>
+                        <li>Reload page to load a new list.</li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="control-group">
+                <form id="formForPinyinSearchBox">
+                    <label for="pinyinSearchBox">Pinyin Search</label>
+                    <input type="text" id="pinyinSearchBox" name="pinyinSearchBox" placeholder="e.g., bannian">
+                    <input type="submit" style="display: none;">
+                </form>
+                <div id="userChoiceConsoleOutput" style="font-size: 0.8rem; margin-top: 8px; color: #d63031;"></div>
+            </div>
+
+            <div class="control-group">
+                <label>Options</label>
+                <form>
+                    <div class="option-row">
+                        <input type="checkbox" id="HSK2Box" name="HSK2" value="HSK2" checked>
+                        <label for="HSK2Box">Include HSK 2012</label>
+                    </div>
+                    <div class="option-row">
+                        <input type="checkbox" id="HSK3Box" name="HSK3" value="HSK3" checked>
+                        <label for="HSK3Box">Include HSK 3.0</label>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                    <div class="option-row">
+                        <input type="checkbox" id="arrangeDefinitionsBox" name="" value="">
+                        <label for="arrangeDefinitionsBox">Group definitions by level</label>
+                    </div>
+                    <div class="option-row">
+                        <input type="checkbox" id="dontIncludeLowerLevelWords" name="" value="">
+                        <label for="dontIncludeLowerLevelWords">Hide lower level words</label>
+                    </div>
+                </form>
+            </div>
+			
+			<div class="control-group">
+                <label style="font-weight:bold; display:block; margin-bottom:10px;">Color Legend</label>
+                <div style="display:flex; flex-direction:column; gap:10px; font-size:0.75rem; color: #333;">
+                    <div><strong style="display:block; margin-bottom: 4px;">HSK 3.0</strong>
+                        <span class="hsk31" style="padding:2px 5px; border-radius:3px;">L1</span>
+                        <span class="hsk32" style="padding:2px 5px; border-radius:3px;">L2</span>
+                        <span class="hsk33" style="padding:2px 5px; border-radius:3px;">L3</span>
+                        <span class="hsk34" style="padding:2px 5px; border-radius:3px;">L4</span>
+                        <span class="hsk35" style="padding:2px 5px; border-radius:3px;">L5</span>
+                        <span class="hsk36" style="padding:2px 5px; border-radius:3px;">L6</span>
+                        <span class="hsk37" style="padding:2px 5px; border-radius:3px;">L7-9</span>
+                    </div>
+                    <div><strong style="display:block; margin-bottom: 4px;">HSK 2012</strong>
+                        <span class="hsk21" style="padding:2px 5px; border-radius:3px;">L1</span>
+                        <span class="hsk22" style="padding:2px 5px; border-radius:3px;">L2</span>
+                        <span class="hsk23" style="padding:2px 5px; border-radius:3px;">L3</span>
+                        <span class="hsk24" style="padding:2px 5px; border-radius:3px;">L4</span>
+                        <span class="hsk25" style="padding:2px 5px; border-radius:3px;">L5</span>
+                        <span class="hsk26" style="padding:2px 5px; border-radius:3px;">L6</span>
+                    </div>
+                </div>
+            </div>
+
+            <details style="font-size: 0.8rem; background: #fff; border: 1px solid #dee2e6; border-radius: 12px; padding: 12px; margin-bottom: 15px;">
+                <summary style="cursor: pointer; font-weight: bold; color: #555;">Word Counts</summary>
+                <div id="statsOutput" style="margin-top: 10px; color: #444; line-height: 1.6;">
+                    <em>Run analysis to see word counts...</em>
+                </div>
+            </details>
+            
+            <details style="font-size: 0.75rem; color: #999; margin-top: 10px;">
+                <summary>Dev To-Do</summary>
+                <ul>
+                    <li>when you enter "丨" it shows up as a character that wasn't found: make the "chars not found" more precise - note it is not the same as |; it is a special chinese punctuation mark of some sort.</li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </details>
+        </div>
+    </aside>
 
 
-<div class="row">
-	
-	<!--User text input-->
-  <div class="column" style="background-color:#eee;">
-    
-		<form id="formForChineseInput">
-
-		<p><label for="enterChineseText">
-			Enter Chinese text
-			<ul>
-				<li>Web app will remove English text, and truncate input over its limit (20,000 characters).</li>
-				<li>HSK lists are sourced from the web, and are nearly complete, but not quite.</li>
-				<li>There will be errors in word divisions, which are ambiguous in written Chinese. It has no AI; it simply searches the higher HSK levels first.</li>
-				<li>The app lists the definitions with its number (#1 etc) in the filtered input (#304 means, the 304th character after removing any English from the input)</li>
-				<li>If you want to load a new list, you have to reload the page.</li>
-			</ul>
-		</label></p>
-
-		  <textarea id="textInput" name="textInput" rows="10" cols="80"></textarea>
-		  <br>
-
-		</form>
-		<button id="submitButton1" class="button button1">Submit</button>
+	<main id="main-content">
+        <div id="text-pane">
+            <div id="chineseOutput" class="chineseText"></div>
+            <div id="matchesFoundOutput" style="font-size: 0.9rem; color: #0b57d0; margin-top: 15px;"></div>
+        </div>
+        
+        <div class="resizer" id="dragMe">
+            <div class="resizer-grip"></div>
+        </div>
+        
+        <div id="vocab-pane">
+            <div id="definitionsListHeader" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 15px;"></div>
+            <div id="definitionsList" class="chineseAndEnglish"></div>
+            
+            <p id="console" style="font-family: 'Segoe UI', sans-serif; font-size: 0.85rem; color: #666; margin-top: 40px; border-top: 1px dashed #ccc; padding-top: 10px;"></p>
+        </div>
+    </main>
 
 
 
-	</div>
-	<!--User choices, console-type feedback-->
-	<div class="column" style="background-color:#ddd;">
-		<form id="formForPinyinSearchBox">
-		  <label for="pinyinSearchBox">Pinyin search: enter pinyin for the dictionary entry without accents or spaces (letters only), eg. "bannian"<br>If there is no match, it says "Matches found: 0" - it gives no other feedback<br></label>
-		  <input type="submit">
-		  <input type="text" id="pinyinSearchBox" name="pinyinSearchBox" value=""><br>
-		</form>
-
-		<form>
-			<input type="checkbox" id="HSK2Box" name="HSK2" value="HSK2" checked>
-			<label for="hsk2012"> Include HSK 2012 words</label><br>
-			<input type="checkbox" id="HSK3Box" name="HSK3" value="HSK3" checked>
-			<label for="hsk3"> Include HSK 3.0 (2021) words</label><br>
-			<input type="checkbox" id="arrangeDefinitionsBox" name="" value="">
-			<label for="groupByHsk">Group definitions by HSK level</label><br>
-			<input type="checkbox" id="dontIncludeLowerLevelWords" name="" value="">
-			<label for="extraInfo"> Don't include lower level words</label><br><br>
-			<!--
-			  <input type="submit" value="Submit">
-			-->
-		</form> 
-		<div id="userChoiceConsoleOutput"></div>
-		<div id="matchesFoundOutput"></div>
-	</div>
-</div>
-
-<p id="console" style="font-family:Segoe UI"></p>
-
-
-<div id="chineseOutput" class="chineseText">
-</div>
-
-
-<div id="definitionsListHeader">
-</div>
-<div id="definitionsList" class="chineseAndEnglish">
 </div>
 
 
 <script src="jQuery-3-7-1.js"></script>
-
+<script src="HSK-Webapp-style-code.js"></script>
 
 <!--
 These next files load a comma separated list of the chinese words (list only) AT each level (HSK 2012) with comma separated entries.
@@ -212,53 +160,7 @@ number of entries does not necessarily match number listed alongside definition,
 Variables are declared as an array in the format: "hsk2012LxChineseList[1] = ";
 -->
 
-<!--
-		THIS CODE (SEPARATE WORD LISTS AND DEFINITION LISTS) IS NOW REDUNDANT AND HAS BEEN REPLACED BY THE ARRAY VERSIONS OF THE FULL DICTIONARIES
-		IT IS PRESERVED HERE IN CASE OF BUGS SHOWING UP LATER
 
-
-		<script>
-			var hsk2012LxChineseList = [];
-		</script>
-		<script src="HSK-2012-L1-3-chinese-lists.js"></script>
-		<script src="HSK-2012-L4-6-chinese-lists.js"></script>
-
-
-				<!--
-				These files are string variables with the definitions for the words.
-				Variables are declared as an array in the format: hsk2012LxDefinitionList[1] =		
-		<script>
-			var hsk2012LxDefinitionList = [];
-		</script>
-		<script src="HSK-2012-L1-3-definition-list.js"></script>
-		<script src="HSK-2012-L4-definition-list.js"></script>
-		<script src="HSK-2012-L5-definition-list.js"></script>
-		<script src="HSK-2012-L6-definition-list.js"></script>
-
-
-				<!--
-				These files load a comma separated list of the chinese words (list only) AT each level (HSK 3.0) with comma separated entries.
-				Variables are declared as an array in the format: "hsk3LxChineseList[1] = 爱,爱好,八,爸爸,...";
-		<script>
-			var hsk3LxChineseList = []; //sets up the array
-		</script>
-		<script src="HSK3-L1-7-chinese-lists.js"></script>
-
-
-				<!--
-				These files are string variables with the definitions for the words.
-				Variables are declared as an array in the format: hsk3LxDefinitionList[1] =
-		<script>
-			var hsk3LxDefinitionList = []; //sets up the array
-		</script>
-		<script src="HSK3-L1-definition-list.js"></script>
-		<script src="HSK3-L2-definition-list.js"></script>
-		<script src="HSK3-L3-definition-list.js"></script>
-		<script src="HSK3-L4-definition-list.js"></script>
-		<script src="HSK3-L5-definition-list.js"></script>
-		<script src="HSK3-L6-definition-list.js"></script>
-		<script src="HSK3-L7-definition-list.js"></script>
--->
 
 
 
@@ -267,11 +169,22 @@ Variables are declared as an array in the format: "hsk2012LxChineseList[1] = ";
 <script>
 	var hsk2012LxWordPlusDefnList = [];
 	var hsk3LxWordPlusDefnList = [];
+	const hskCorpusTexts = [];
 </script>
+
+<script src="HSK-2012-L4-TEXTS-NEAT.js"></script>
+<script src="HSK-2012-L5-TEXTS-NEAT.js"></script>
+<script src="HSK-Webapp-extra-code.js"></script>
+	<!-- (loads the function for the corpus texts) -->
+
+
+
 <!--THESE ARE THE ARRAY VERSIONS, COMBINING CHINESE WORDS AND DEFINITIONS-->
 <script src="HSK-2012-L1-3-word-plus-def-ARRAY.js"></script>
-<script src="HSK-2012-L4-word-plus-def-ARRAY.js"></script>
+<!-- <script src="HSK-2012-L4-word-plus-def-ARRAY.js"></script> -->
+<script src="HSK-2012-L4-word-plus-def-ARR-ENRICHED.js"></script>
 <script src="HSK-2012-L5-word-plus-def-ARRAY.js"></script>
+<script src="HSK-2012-L5-word-plus-def-ARR-ENRICHED.js"></script>
 <script src="HSK-2012-L6-word-plus-def-ARRAY.js"></script>
 
 <script src="HSK3-L1-word-plus-def-ARRAY.js"></script>
@@ -301,7 +214,6 @@ const DEBUG_ZERO = 0; //DEBUG VALUE
 		//CLEAN BRACKET DEFINITIONS FROM SET 3 WORDS: FOLLOW FORMAT OF ZI-(EXAMPLE: ZHUOZI) - NO CHINESE IN DEFINITION IF POSSIBLE PLEASE SEARCH FOR FUNNY BRACKETS （）, (U+FF08)
 		//MULTI-PINYIN WORDS NEED MULTI PINYIN CLASSES, ESP: TIAO/DIAO
 			//OR: JUST PRINT BOTH DEFINITIONS, ALLOW MULTIPLE MATCHES, JUST REMEMBER TO ADD MULTIPLE DEFINITIONS AND MULTIPLE PINYIN CLASSES, MUST BE CAREFUL WITH THE CSS SYNTAX
-		//BUGFIX: SHOULD NOT ADD ONE TO THE COUNT FOR PINYIN FOUND, WHEN IT READS THE EXTRA DEFINITION POSTED IN THE TOP WINDOW (READING ITS OWN HTML WINDOW): LIMIT CHECK TO ALL USER "MAINSPACE" - PERHAPS ADD A MAINSPACE DIV
 		//ADD USER OPTIONS: SEE CLASS DEFINITION FOR THIS, CURRENTLY EMPTY
 		//IF YOU CHANGE THE DICTIONARIES AND THEIR FORMATTING, SO ALL AN ARRAY, PROB WILL WANT TO CHANGE ALL "SPAN" TAG CODE TO PUT IN A DIFFERENT PLACE - MORE THINGS BECOME READILY AVAILABLE TO THE PROGRAM, SUCH AS PINYIN
 			//CODE THAT WILL BE DISRUPTED, MARKED AS:
@@ -310,8 +222,6 @@ const DEBUG_ZERO = 0; //DEBUG VALUE
 		//ADD ACCESSORY INPUT, HIGHLIGHT OTHER EXAMPLES OF THE LEARNING WORDS FROM THE PRIMARY INPUT
 		//PUT PROCESSINPUT FUNCTION INSIDE ARRAY CLASS
 		//PROCESSEDINPUT: BAD VARIABLE NAME, BECAUSE ONLY STEP 1 OF PROCESSING: INPUTCLEANED1STEP OR SOMETHING LIKE THAT
-		//ADD SUB-WORD DEFINITIONS IF THEY ARE FOUND
-		//KEEP BOTH DEFINITIONS IF ITS THE SAME WORD
 	//user choices: 
 		//choose which levels, and which vocab set to use
 			//allow both, but then choose which one has priority (or: force the old hsk to have priority)
@@ -322,9 +232,6 @@ const DEBUG_ZERO = 0; //DEBUG VALUE
 		//589 	高速公路 	gāosùgōnglù 	expressway; highway; freeway: COMPOUND WORD, TEST
 		//"hskWd":"子","hskDefn":"子（桌子）\tzi （ zhuō zi ）\tnoun suffix (table)","pinyinNoSpaces":"zizhuozi"}, (FROM THE OUTPUT OF THE NEW ARRAY FORMAT, CHECK WHAT'S HAPPENING)
 
-
-	
-	
 	
 	//OVERVIEW OF ALGORITHM:
 		//WHOLE PROGRAM IS BASICALLY AN INTERACTION BETWEEN THE INPUT CHARACTERS (ONE MAJOR CLASS FOR THE INPUT) AND THE DICTIONARIES (ONE MAJOR CLASS FOR ALL DICTIONARIES)
@@ -364,51 +271,65 @@ class UserChoices {
 	}
 }
 
-
 //main function creates ONE instance of this class, CALLED: "mainHskData"
 //this can prob be converted into an OBJECT
 class HskSetStatisticalInfo {
-	//ideally will take a "user choice" variable as input for the constructor
-	//may contain info on hsk sets, including:
-		//markup text for each level, 
-		//which levels are active (if the user deletes any levels)
-		//number of characters of each level
-	constructor() {
-		this.totalCountHskSet2 = [0,0,0,0,0,0]; //array of counters for num words of each level, 1-6
+    //ideally will take a "user choice" variable as input for the constructor
+    //may contain info on hsk sets, including:
+        //markup text for each level, 
+        //which levels are active (if the user deletes any levels)
+        //number of characters of each level
+    constructor() {
+        this.totalCountHskSet2 = [0,0,0,0,0,0]; //array of counters for num words of each level, 1-6
 
 //PLEASE MODULARISE: HSK 3.0 LEVEL 7-9
-		this.totalCountHskSet3 = [0,0,0,0,0,0,0]; //array for hsk 3.0
-	}
+        this.totalCountHskSet3 = [0,0,0,0,0,0,0]; //array for hsk 3.0
+    }
 
+    printActiveHskLevels() {
+        // this.calculateCorrectCountsHskSet2(); // Kept commented out as per your original BUGWATCH note
 
-	printActiveHskLevels() {
-		//print active levels at top, with correct highlights for each level, and the cumulative counts for distinct words from each level
-		//current printing is from findAllMatches: $("#console").append("<br><span class = hsk" + hskSet + hskLevel + ">hsk set: " + hskSet + "; hsk level: " + hskLevel + "</span>");
-		//that code simply printed as each level was searched, this will print separately at the end
-		//this.calculateCorrectCountsHskSet2(); //special class method to adjust counts since at the moment, set 2 is a cumulative list
-		//BUGWATCH: NEW SET 2 HAS BEEN FIXED
-		var i;
-		$("#console").append("<br>Totals set 2 (HSK 2012): ");
-		for (i = 0; i < this.totalCountHskSet2.length; i++) {
-			$("#console").append(" Level " + (i + 1) + ": " + this.totalCountHskSet2[i]);
-		}
-		$("#console").append("<br>Totals set 3 (HSK 3.0): ");
-		for (i = 0; i < this.totalCountHskSet3.length; i++) {
-			$("#console").append(" Level " + (i + 1) + ": " + this.totalCountHskSet3[i]);
-		}
-	}
+        let statsHtml = "";
+        let isHsk2Checked = $("#HSK2Box").is(":checked");
+        let isHsk3Checked = $("#HSK3Box").is(":checked");
 
-	//special class method to adjust counts since at the moment, set 2 is a cumulative list
-	calculateCorrectCountsHskSet2() {
-		var sum = 0;
-		var i;
-		for (i = 0; i < this.totalCountHskSet2.length; i++) {
-			this.totalCountHskSet2[i] -= sum;
-			sum += this.totalCountHskSet2[i];	
-		}
-	}
+        if (isHsk3Checked) {
+            statsHtml += "<strong style='color:#1f1f1f;'>HSK 3.0:</strong><br>";
+            for (let i = 0; i < this.totalCountHskSet3.length; i++) {
+                if (this.totalCountHskSet3[i] > 0) {
+                    statsHtml += `<span style="display:inline-block; width:60px;">Level ${i + 1}:</span> <strong>${this.totalCountHskSet3[i]}</strong><br>`;
+                }
+            }
+            statsHtml += "<br>";
+        }
+
+        if (isHsk2Checked) {
+            statsHtml += "<strong style='color:#1f1f1f;'>HSK 2012:</strong><br>";
+            for (let i = 0; i < this.totalCountHskSet2.length; i++) {
+                if (this.totalCountHskSet2[i] > 0) {
+                    statsHtml += `<span style="display:inline-block; width:60px;">Level ${i + 1}:</span> <strong>${this.totalCountHskSet2[i]}</strong><br>`;
+                }
+            }
+        }
+
+        if (statsHtml === "") {
+            statsHtml = "<em>No words found.</em>";
+        }
+        
+        // Target the sidebar collapsible section instead of the bottom console
+        $("#statsOutput").html(statsHtml);
+    }
+
+    //special class method to adjust counts since at the moment, set 2 is a cumulative list
+    calculateCorrectCountsHskSet2() {
+        var sum = 0;
+        var i;
+        for (i = 0; i < this.totalCountHskSet2.length; i++) {
+            this.totalCountHskSet2[i] -= sum;
+            sum += this.totalCountHskSet2[i];    
+        }
+    }
 }
-
 
 
 //Class for individual entries on hsk word lists
@@ -420,8 +341,8 @@ class WordFromHskList {
 								//if "hasBeenDefined" is true, this word has been found in the main input stream, and is stored in the main input array as the "chineseWord" member data for the first character of the first appearance of the word (first appearance as judged by the algorithm).
 		this.hskWd = hskW;
 		this.hskDefn = hskD;
-		this.hskStdCourseChapter = hskCh; //THIS WILL CONTAIN THE CHAPTER THE WORD COMES FROM
-				//MUST BE ADDED TO THE EXTERNAL FILES WITH THE ARRAY OF WORDS AND DEFINITIONS, THEN ADDED TO THIS CODE: hsk2012LxWordPlusDefnList[idx][j][0], hsk2012LxWordPlusDefnList[idx][j][1] --> THESE ARRAYS WILL HAVE AN EXTRA ENTRY, SO THE CHAPTER NUMBER WILL BE LIKE THIS: hsk2012LxWordPlusDefnList[idx][j][2] (IT WILL BE THE THIRD ENTRY IN THE ARRAY, NECESSARY SINCE IT WON'T BE PRESENT FOR EVERY HSK LEVEL - ONLY THE 2012 WORD LIST, WHICH IS THE MOST IMPORTANT)
+		this.hskCorpusSectionRefs = hskCh; 
+						//@@@Was designed to hold the chapter the word was from, will now have all refs as an array.
 		this.pinyinNoSpaces = this.setPinyin();
 	}
 	setPinyin() {
@@ -536,6 +457,7 @@ class CharacterFromInput {
 		this.hskVocabSet = 0;
 		this.hskVocabLevel = 0;
 		this.definitionStringToPrint = "";
+		this.tooltipText = "";
 	}
 
 	//takes an object of same type, tests whether same word, only works for first char of word
@@ -566,12 +488,13 @@ class CharacterFromInput {
 		this.definitionStringToPrint = "";
 	}
 	//same thing, for first then last character
-	setInputCharDataFirstChar(hskWord, pinyin) {
+	setInputCharDataFirstChar(hskWord, pinyin, tooltipText = "") {
 		this.isFirstChar = true;
 		this.isLastChar = (hskWord.length == 1);
 		this.isOnlyChar = this.isLastChar;
 		this.chineseWord = hskWord;
 		this.pinyinNoSpaces = pinyin;
+		this.tooltipText = tooltipText; //@@@shouldn't this be all characters, so add to inner character????
 	}
 	setInputCharDataLastChar() {
 		this.isLastChar = true;
@@ -600,7 +523,7 @@ class CharacterFromInput {
 
 //THIS IS THE "HIGHEST" LEVEL CLASS: THE INPUT STRING CHARACTER ARRAY CLASS
 //contains the main input string, and one array of "CharacterFromInput" for record keeping
-//One object of this class; contains an array of "CharacterFromInput"
+//Singleton class only; contains an array of "CharacterFromInput"
 class ArrayOfCharacterFromInput {
 	constructor(userInputString) {
 		this.mainInputString = new String(userInputString);
@@ -617,100 +540,75 @@ class ArrayOfCharacterFromInput {
 	}
 
 
-//MODULARISE: EVERYTHING HERE IS ABOUT TO CHANGE
-	//RECEIVES AN ARRAY WHICH IS ONE LIST FROM ONE SET
+
+//RECEIVES AN ARRAY WHICH IS ONE LIST FROM ONE SET
 	//function to be called from main, to create the final list of all definitions
 	//each call will send one hsk list of words, and the associated list of definitions
 	//postcondition: object contains number of words defined from that list (does not decrement for words that are later erased)
 
 
 //CHANGING TO ARRAY: THIS METHOD NOW PASSES IN AN ARRAY OF HSK WORDS IN THE NEW OBJECT FORMAT
-				//BUT: MUST HANDLE ANYTHING WHERE YOU FIND A WORD OR A DEFSTRING
-				//pass in object of class: SingleArraySingleLevelWordFromHskList (attached to the master array object defined in main function)
+			//BUT: MUST HANDLE ANYTHING WHERE YOU FIND A WORD OR A DEFSTRING
+			//pass in object of class: SingleArraySingleLevelWordFromHskList (attached to the master array object defined in main function)
 	//findAllMatchesOneHskList(singleArrayHskWordObjects) 
 		//singleArrayHskWordObjects.singleLevelArray[i].hskWd = hskWordArray[i]
 		//singleArrayHskWordObjects.singleLevelArray[i].hskDefn = hskDefThisWord
 		//singleArrayHskWordObjects.hskSet
 		//singleArrayHskWordObjects.hskLvl
 		//singleArrayHskWordObjects.singleLevelArray.length = hskWordArray.length
-	findAllMatchesOneHskList(singleArrayHskWordObjects) { //, hskSet, hskLevel, hskWordArray, hskDefsString) {}
+	findAllMatchesOneHskList(singleArrayHskWordObjects) {
 		this.counterNumberDistinctWordsCurrentLevel = 0;
 		var hasBeenDefined = false; //update all char data for prev defined words, except defn
 		var i;
 		var idx;
 		var frameLength;
 		var hskDefThisWord = "";
+		var tooltipText = ""; //@@@added by me, making sure it exists to stop error
 
-		//for loop: same loop to search the singleLevelArray (NEW) instead of the hskWordArray (OLD)
-		//while loop: same loop to search the input stream for matches
+		//for loop: search the singleLevelArray
+		//while loop: search the input stream for matches
 
-		var testCode = true;
-		if (testCode) {
-
-			for (i = 0; i < singleArrayHskWordObjects.singleLevelArray.length; i++) {
-				hasBeenDefined = false; //reset for next hsk word
-				frameLength = singleArrayHskWordObjects.singleLevelArray[i].hskWd.length;
-				idx = this.mainInputString.indexOf(singleArrayHskWordObjects.singleLevelArray[i].hskWd); //first match
-				while (idx != -1) { //update array entry and find all matches
-					if (this.decideShouldUpdate(idx, frameLength)) {//check valid word boundary
-						if (!hasBeenDefined) {
-							hskDefThisWord = singleArrayHskWordObjects.singleLevelArray[i].hskDefn;
-							this.counterNumberDistinctWordsCurrentLevel++;
-							
-							//MODULARISE: NOT IDEAL SOLUTION AS YET:
-							//new code to add the chapter number
-							if (singleArrayHskWordObjects.singleLevelArray[i].hskStdCourseChapter != 0) {
-								hskDefThisWord += " (Chapter " + singleArrayHskWordObjects.singleLevelArray[i].hskStdCourseChapter + ")";
-							}
-							
-							
-						} //ENDIF (!HASBEENDEFINED)
-						this.updateEntriesForOneFrame(hasBeenDefined,
-							singleArrayHskWordObjects.hskSet, 
-							singleArrayHskWordObjects.hskLvl,
-							singleArrayHskWordObjects.singleLevelArray[i].hskWd, hskDefThisWord, idx, frameLength); //MODULARISE: HSK WORD CLASS KNOWS:
-							//HASBEENDEFINED, THE HSK WORD, AND THE HSK DEFINITION
-								//ALSO HSK SET AND LEVEL ARE ON THE SINGLELEVELARRAY CLASS
-								//PLS PASS FEWER PARAMETERS
-						hasBeenDefined = true; //add definition to array once only
-					} //ENDIF (THIS.DECIDESHOULDUPDATE) 
-					idx = this.mainInputString.indexOf(singleArrayHskWordObjects.singleLevelArray[i].hskWd, (idx + frameLength)); //find next match
-				} //ENDWHILE
-			} //ENDFOR
-		} else {
-
-
-
-		//**********BEING UPDATED: THIS CODE WILL NOT RUN WITH NEW PARAMETER LIST, BEING PHASED OUT**********
-			var hskDefThisWord = "";
-			var myRegExp = new RegExp();
-			//each iteration takes one word from the given hsk list, finds ALL matches for it in the user input string, and updates ALL the entries in this.mainArray
-			for (i = 0; i < hskWordArray.length; i++) {
-				hasBeenDefined = false; //reset for next hsk word
-				frameLength = hskWordArray[i].length; //set frame length for this hsk word
-				idx = this.mainInputString.indexOf(hskWordArray[i]); //first match
-				while (idx != -1) { //update array entry and find all matches
-					if (this.decideShouldUpdate(idx, frameLength)) {//check valid word boundary
-						if (!hasBeenDefined) {
-							myRegExp = "(?<=\\s)" + hskWordArray[i] +
-							"[^\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]" + "[^«]+"; //REGEXP FOR THE DEFINITION: space/tab lookbehind character, followed by the word itself, followed by any non-chinese character, followed by anything until the end char («) is reached.
-							hskDefThisWord = hskDefsString.match(myRegExp); //definition (returns an array) 
-							if (hskDefThisWord == null) {
-								hskDefThisWord = "DEFINITION FOR: " + hskWordArray[i] + " NOT FOUND";
-							}
-							else {
-								hskDefThisWord = hskDefThisWord[0]; //convert from array to string
-							}
-							this.counterNumberDistinctWordsCurrentLevel++;
-						} //ENDIF (!HASBEENDEFINED)
-						//CHANGING: THIS WILL NOT WORK SOON
-						this.updateEntriesForOneFrame(hasBeenDefined, hskSet, hskLevel, hskWordArray[i], hskDefThisWord, idx, frameLength);
-						hasBeenDefined = true; //add definition to array once only
-					} //ENDIF (THIS.DECIDESHOULDUPDATE)
-					idx = this.mainInputString.indexOf(hskWordArray[i], (idx + frameLength)); //find next match
-				} //ENDWHILE
-			} //ENDFOR
-		} //ENDELSE, END BIFURCATED CODE
+		for (i = 0; i < singleArrayHskWordObjects.singleLevelArray.length; i++) {
+			hasBeenDefined = false; //reset for next hsk word
+			frameLength = singleArrayHskWordObjects.singleLevelArray[i].hskWd.length;
+			idx = this.mainInputString.indexOf(singleArrayHskWordObjects.singleLevelArray[i].hskWd); //first match
+			while (idx != -1) { //update array entry and find all matches
+				if (this.decideShouldUpdate(idx, frameLength)) {//check valid word boundary
+					if (!hasBeenDefined) {
+						hskDefThisWord = singleArrayHskWordObjects.singleLevelArray[i].hskDefn;
+						this.counterNumberDistinctWordsCurrentLevel++;
+						
+							// GENERATE TOOLTIP HERE (Only once per word!)
+							tooltipText = getExamplesForTooltip(
+								singleArrayHskWordObjects.singleLevelArray[i].hskWd, 
+								singleArrayHskWordObjects.singleLevelArray[i].hskCorpusSectionRefs //@@@NEW CODE: CHECK NAMES
+							);
+						
+						//MODULARISE: NOT IDEAL SOLUTION AS YET:
+						//new code to add the chapter number
+						if (singleArrayHskWordObjects.singleLevelArray[i].hskCorpusSectionRefs != 0) {
+							hskDefThisWord += " (Chapter " + singleArrayHskWordObjects.singleLevelArray[i].hskCorpusSectionRefs + ")";
+						}
+						
+						
+					} else {
+						// If it HAS been defined, pass an empty tooltip so we don't duplicate work
+						//@@@this line is from Gemini: I'm pretty sure it's not needed, will only update once
+						//this.updateEntriesForOneFrame(hasBeenDefined, singleArrayHskWordObjects.hskSet, singleArrayHskWordObjects.hskLvl, singleArrayHskWordObjects.singleLevelArray[i].hskWd, "", "", idx, frameLength);
+					}//ENDIF (!HASBEENDEFINED)
+					this.updateEntriesForOneFrame(hasBeenDefined,
+						singleArrayHskWordObjects.hskSet, 
+						singleArrayHskWordObjects.hskLvl,
+						singleArrayHskWordObjects.singleLevelArray[i].hskWd, hskDefThisWord, tooltipText, idx, frameLength); //@@@MODULARISE: HSK WORD CLASS KNOWS:
+						//HASBEENDEFINED, THE HSK WORD, AND THE HSK DEFINITION
+							//ALSO HSK SET AND LEVEL ARE ON THE SINGLELEVELARRAY CLASS
+							//PLS PASS FEWER PARAMETERS
+					hasBeenDefined = true; //add definition to array once only
+				} //ENDIF (THIS.DECIDESHOULDUPDATE) 
+				idx = this.mainInputString.indexOf(singleArrayHskWordObjects.singleLevelArray[i].hskWd, (idx + frameLength)); //find next match
+			} //ENDWHILE
+		} //ENDFOR
+		
 	} //END FINDALLMATCHES
 
 
@@ -744,7 +642,7 @@ class ArrayOfCharacterFromInput {
 		//one set of data for one word has populated a CharacterFromInput object in the array
 		//***OTHER WORDS UNDER FRAME HAVE HAD THEIR DEFINITIONS MOVED (they are counted in the final tallies, but otherwise are wiped)
 	//inv: words involving any characters not in this frame unaffected (words with same characters outside this frame, appearing later in the input stream, might have definition added)
-	updateEntriesForOneFrame(hasBeenDefined, hskSet, hskLevel, hskWord, hskDefThisWord, idx, frameLength) {
+	updateEntriesForOneFrame(hasBeenDefined, hskSet, hskLevel, hskWord, hskDefThisWord, tooltipText, idx, frameLength) {
 		var i;
 		var pinyin = "";
 		
@@ -768,7 +666,7 @@ class ArrayOfCharacterFromInput {
 				pinyin = pinyin.replace(/\W/g, ""); //remove spaces and anything else
 			}
 		}
-		this.mainArray[idx].setInputCharDataFirstChar(hskWord, pinyin);
+		this.mainArray[idx].setInputCharDataFirstChar(hskWord, pinyin, tooltipText);
 		this.mainArray[idx + frameLength - 1].setInputCharDataLastChar();
 		if (!hasBeenDefined) {this.mainArray[idx].setDefinitionAndHtml(hskDefThisWord);}
 	}
@@ -800,7 +698,20 @@ class ArrayOfCharacterFromInput {
 		var markupText = "";
 		var i;
 		for (i = 0; i < this.mainArray.length; i++) {
-			if (this.mainArray[i].isFirstChar) {markupText += "<span class='hsk" + this.mainArray[i].hskVocabSet + this.mainArray[i].hskVocabLevel + " " + this.mainArray[i].pinyinNoSpaces + "'>";}
+			if (this.mainArray[i].isFirstChar) {
+				// We add a generic 'hsk-word' class to easily target all words, 
+				// the specific level class for colors, and the data-pinyin for search.
+				//@@@new tooltip stuff
+				
+				let tooltipAttr = "";
+                if (this.mainArray[i].tooltipText) {
+                    // Escape quotes so it doesn't break the HTML tag
+                    let safeText = this.mainArray[i].tooltipText.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                    tooltipAttr = ` data-tooltip="${safeText}"`;
+                }
+				//@@@ Add the tooltipAttr and a new 'hsk-tooltip' class 
+				markupText += `<span class='hsk-word hsk-tooltip hsk${this.mainArray[i].hskVocabSet}${this.mainArray[i].hskVocabLevel}' data-pinyin='${this.mainArray[i].pinyinNoSpaces}'${tooltipAttr}>`;
+			}
 			if (this.mainArray[i].hskVocabSet == 0 && processedInput.charAt(i).search(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/) != -1) {
 				markupText += "<span class=hskNull" + ">"; //chinese char not part of hsk lists
 			}
@@ -832,29 +743,67 @@ class ArrayOfCharacterFromInput {
 	}
 
 
-	//called once from main function
+
+//called once from main function
 	//pre: list of definitions is ready
 	//post: list is printed
 	//inv: all underlying logical data unaffected (only prints to screen)
 	printDefsToScreen() {
-		var i;
 		var count = 0;
-		for (i = 0; i < this.mainArray.length; i++) {
-			if (this.mainArray[i].definitionStringToPrint != "") {
-				$("#definitionsList").append("<br><span id=char" + i + "defn class=numWordDefn><span class=defnNum>#" + i + "</span>: " + 
-					this.mainArray[i].definitionStringToPrint + "</span>");
-						//"numWordDefn" refers to the full string: #num - word - defn
-				count++;
+		var groupByLevel = $("#arrangeDefinitionsBox").is(":checked");
+
+		// Clear previous list if any
+		$("#definitionsList").empty();
+
+		if (groupByLevel) {
+			// --- GROUPED BY LEVEL OUTPUT ---
+			let groupedHtml = "";
+			
+			// Process HSK 3.0 groupings
+			if ($("#HSK3Box").is(":checked")) {
+				for(let lvl = 1; lvl <= 7; lvl++) {
+					let levelHtml = "";
+					for (let i = 0; i < this.mainArray.length; i++) {
+						if (this.mainArray[i].definitionStringToPrint != "" && this.mainArray[i].hskVocabSet == 3 && this.mainArray[i].hskVocabLevel == lvl) {
+							//levelHtml += "<br><span id=char" + i + "defn class=numWordDefn><span class=defnNum>#" + i + "</span>: " + this.mainArray[i].definitionStringToPrint + "</span>";
+							levelHtml += "<br><span id=char" + i + "defn class='numWordDefn vocab-word' data-pinyin='" + this.mainArray[i].pinyinNoSpaces + "'><span class=defnNum>#" + i + "</span>: " + this.mainArray[i].definitionStringToPrint + "</span>";
+							count++;
+						}
+					}
+					if (levelHtml !== "") groupedHtml += `<div style="margin-top: 20px; font-weight: bold; color: #555;">HSK 3.0 - Level ${lvl}</div>` + levelHtml;
+				}
+			}
+
+			// Process HSK 2012 groupings
+			if ($("#HSK2Box").is(":checked")) {
+				for(let lvl = 1; lvl <= 6; lvl++) {
+					let levelHtml = "";
+					for (let i = 0; i < this.mainArray.length; i++) {
+						if (this.mainArray[i].definitionStringToPrint != "" && this.mainArray[i].hskVocabSet == 2 && this.mainArray[i].hskVocabLevel == lvl) {
+							//levelHtml += "<br><span id=char" + i + "defn class=numWordDefn><span class=defnNum>#" + i + "</span>: " + this.mainArray[i].definitionStringToPrint + "</span>";
+							levelHtml += "<br><span id=char" + i + "defn class='numWordDefn vocab-word' data-pinyin='" + this.mainArray[i].pinyinNoSpaces + "'><span class=defnNum>#" + i + "</span>: " + this.mainArray[i].definitionStringToPrint + "</span>";
+							count++;
+						}
+					}
+					if (levelHtml !== "") groupedHtml += `<div style="margin-top: 20px; font-weight: bold; color: #555;">HSK 2012 - Level ${lvl}</div>` + levelHtml;
+				}
+			}
+			$("#definitionsList").append(groupedHtml);
+
+		} else {
+			// --- CHRONOLOGICAL OUTPUT (Original Mode) ---
+			for (let i = 0; i < this.mainArray.length; i++) {
+				if (this.mainArray[i].definitionStringToPrint != "") {
+					//$("#definitionsList").append("<br><span id=char" + i + "defn class=numWordDefn><span class=defnNum>#" + i + "</span>: " + this.mainArray[i].definitionStringToPrint + "</span>");
+					$("#definitionsList").append("<br><span id=char" + i + "defn class='numWordDefn vocab-word' data-pinyin='" + this.mainArray[i].pinyinNoSpaces + "'><span class=defnNum>#" + i + "</span>: " + this.mainArray[i].definitionStringToPrint + "</span>");
+					count++;
+				}
 			}
 		}
 		$("#definitionsListHeader").text("Total definitions: " + count);
 	}
 
 }
-
-
-
-
 
 
 //TO DO: PUT THIS INSIDE A CLASS
@@ -867,101 +816,58 @@ function processInput(str) {
 }
 
 
-
-
-function highlightFromPinyin(event) {
-	//temp fix only
-	//must printout the whole definition at the top: may need to add other class wrappers
-	var jqMatches; //jquery object for the matches
-	var jqElements; //dynamic jquery object for the further search from the matches
-	var i;
-	var highlightClass = $("#pinyinSearchBox")[0].value; //works
-	if (highlightClass.length > 0) {
-		jqMatches = $("." + highlightClass);
-		jqMatches.addClass("pinyinMatchFound");
-		jqElements = jqMatches.parent().children(".defnNum");
-		jqElements.addClass("pinyinMatchFound");
-		$("#userChoiceConsoleOutput").text("Matches found: " + jqMatches.length);
-		jqElements = jqMatches.parent(".numWordDefn");
-		for (i = 0; i < jqElements.length; i++) {
-			$("#matchesFoundOutput").prepend("<br>" + jqElements.eq(i).html() + "<br>");
-		}
-	}
-	else {
-		$("#userChoiceConsoleOutput").text("You need to enter something in the box for this to work");
-	}
-	event.preventDefault();
-}
-
-
-
-
 document.getElementById("submitButton1").addEventListener("click", doMainFn); 
-document.getElementById("formForPinyinSearchBox").addEventListener("submit", highlightFromPinyin); 
 var hskListsFullArray = new MasterArrayOfWordFromHskList(); //change name: masterDictionaryObject
 	//hskListsFullArray.hsk2012Array[idx] (single level array)
 	//hskListsFullArray.hsk3Array[idx] (single level array)
 
-
-
-
 function doMainFn(event) {
-	var idx;
-	var processedInput = processInput($("#textInput").val());
-	var mainInputCharacterArray = new ArrayOfCharacterFromInput(processedInput);
-	var mainHskData = new HskSetStatisticalInfo();
+    var idx;
+    var processedInput = processInput($("#textInput").val());
+    var mainInputCharacterArray = new ArrayOfCharacterFromInput(processedInput);
+    var mainHskData = new HskSetStatisticalInfo();
 
-//MODULARISE: THIS WILL USE THE HSKWORD CLASS
-//MODULARISE/BUG FIX: CHANGE THE INDEX, MUST BECOME >= ZERO, AND SHOULD PROB SEARCH UP NOT DOWN
-	for (idx = 6; idx >= 0; idx--) {
+    // 1. Read the Options Checkboxes
+    var isHsk2Checked = $("#HSK2Box").is(":checked");
+    var isHsk3Checked = $("#HSK3Box").is(":checked");
+    var hideLowerLevels = $("#dontIncludeLowerLevelWords").is(":checked");
 
+    // If hiding lower levels, we stop the loop before index 2 (which represents level 1 & 2)
+    var minLevelIdx = hideLowerLevels ? 2 : 0; 
 
-		/* SUSPECTED REDUNDANT CODE: NEW ARRAY SYSTEM MAKES THIS REDUNDANT
-		var modIndex = idx+1; //EXTRA BECAUSE OLD VARS WERE DEFINED WITH [1] AS STARTING INDEX
-		var wordArrayTemp = hsk3LxChineseList[modIndex].split(","); //REDUNDANT WITH NEW ARRAY SYSTEM: MAY MEAN THAT THE ENTIRE FILE FOR THE hsk3LxChineseList IS REDUNDANT
-		var hskSet = 3; //REDUNDANT WITH NEW ARRAY SYSTEM
-		var hskLevel = idx+1; //REDUNDANT WITH NEW ARRAY SYSTEM
-		var hskDefStringTemp = hsk3LxDefinitionList[modIndex]; //REDUNDANT WITH NEW ARRAY SYSTEM
-		*/
+    // 2. Process HSK 3.0 (if checked)
+    if (isHsk3Checked) {
+        for (idx = 6; idx >= minLevelIdx; idx--) {
+            mainInputCharacterArray.findAllMatchesOneHskList(hskListsFullArray.hsk3Array[idx]); 
+            $("#console").append("<br><span class = hsk3" + (idx + 1) + ">hsk set: 3; hsk level: " + (idx + 1) + "</span>");
+            mainHskData.totalCountHskSet3[idx] = mainInputCharacterArray.counterNumberDistinctWordsCurrentLevel;
+        }
+    }
 
-		mainInputCharacterArray.findAllMatchesOneHskList(hskListsFullArray.hsk3Array[idx]); //, hskSet, hskLevel, wordArrayTemp, hskDefStringTemp; //THIS IS *NOT* REDUNDANT: THIS IS THE MAIN WORKHORSE
-		$("#console").append("<br><span class = hsk3" + (idx + 1) + ">hsk set: 3" + "; hsk level: " + (idx + 1) + "</span>");
+    // 3. Process HSK 2012 (if checked)
+    if (isHsk2Checked) {
+        // most important list is this one; most important list 2nd, because if the word is found again, the definition overwrites
+        for (idx = 5; idx >= minLevelIdx; idx--) {
+            mainInputCharacterArray.findAllMatchesOneHskList(hskListsFullArray.hsk2012Array[idx]); 
+            $("#console").append("<br><span class = hsk2" + (idx + 1) + ">hsk set: 2; hsk level: " + (idx + 1) + "</span>");
+            mainHskData.totalCountHskSet2[idx] = mainInputCharacterArray.counterNumberDistinctWordsCurrentLevel;
+        }
+    }
+    mainHskData.printActiveHskLevels();
 
-		mainHskData.totalCountHskSet3[idx] = mainInputCharacterArray.counterNumberDistinctWordsCurrentLevel;
-	}
-	//most important list is this one; most important list 2nd, because if the word is found again, the definition overwrites
-	for (idx = 5; idx >= 0; idx--) {
+    mainInputCharacterArray.prepareReadingTextFromInput(processedInput);
+    mainInputCharacterArray.prepareListUnfoundCharacters(processedInput);
+    $("#console").append("<br>The unfound characters are: " + mainInputCharacterArray.unfoundCharacters);
+    
+    // Output the marked-up text
+    $("#chineseOutput").html("Chinese input:<br>" + mainInputCharacterArray.finalMarkup);
+    
+    // Print Definitions
+    mainInputCharacterArray.printDefsToScreen(); 
 
-
-		/* SUSPECTED REDUNDANT CODE: NEW ARRAY SYSTEM MAKES THIS REDUNDANT
-		var modIndex = idx+1;
-		var wordArrayTemp = hsk2012LxChineseList[modIndex].split(","); //REDUNDANT WITH NEW ARRAY SYSTEM: MAY MEAN THAT THE ENTIRE FILE FOR THE hsk2012LxChineseList IS REDUNDANT
-		var hskSet = 2; //REDUNDANT: SEE ABOVE
-		var hskLevel = idx+1; //REDUNDANT: SEE ABOVE
-		var hskDefStringTemp = hsk2012LxDefinitionList[modIndex]; //REDUNDANT: SEE ABOVE
-		*/
-
-
-
-		mainInputCharacterArray.findAllMatchesOneHskList(hskListsFullArray.hsk2012Array[idx]); //, hskSet, hskLevel, wordArrayTemp, hskDefStringTemp; //THIS IS *NOT* REDUNDANT: THIS IS THE MAIN WORKHORSE
-		$("#console").append("<br><span class = hsk2" + (idx + 1) + ">hsk set: 2" + "; hsk level: " + (idx + 1) + "</span>");
-
-		mainHskData.totalCountHskSet2[idx] = mainInputCharacterArray.counterNumberDistinctWordsCurrentLevel;
-	}
-
-	mainHskData.printActiveHskLevels();
-
-	mainInputCharacterArray.prepareReadingTextFromInput(processedInput);
-	mainInputCharacterArray.prepareListUnfoundCharacters(processedInput);
-	$("#console").append("<br>The unfound characters are: " + 
-		mainInputCharacterArray.unfoundCharacters);
-	$("#chineseOutput").append("<br>Chinese input:<br>" + 
-		mainInputCharacterArray.finalMarkup);
-	mainInputCharacterArray.printDefsToScreen(); 
-
-	document.getElementById("submitButton1").removeEventListener("click", doMainFn); 
-
-	event.preventDefault();
+    // Disable the button so they have to refresh for a new text (as per your instructions)
+    document.getElementById("submitButton1").removeEventListener("click", doMainFn); 
+    event.preventDefault();
 }
 
 
@@ -985,9 +891,6 @@ function doMainFn(event) {
 				
 				MERGE COLS:
 				["		", "		"],
-				
-		
-		
 		  
 	*/
 

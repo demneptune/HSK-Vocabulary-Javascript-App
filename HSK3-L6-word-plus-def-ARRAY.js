@@ -804,7 +804,7 @@ hsk3LxWordPlusDefnList[5] = [
 ["踢", "踢	tī	kick"],
 ["提交", "提交	tí jiāo	submit; refer"],
 ["提升", "提升	tí shēng	promote; hoist; elevate; promotion"],
-["天然", "天然	tiān rán	natura"],
+["天然", "天然	tiān rán	natural"],
 ["天堂", "天堂	tiāntáng	heaven"],
 ["天下", "天下	tiān xià	world"],
 ["添", "添	tiān	add; increase; have a baby"],

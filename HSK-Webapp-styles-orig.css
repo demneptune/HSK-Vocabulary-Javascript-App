@@ -1,0 +1,98 @@
+		
+		
+		.hsk26 {background: #ff80ff; text-decoration: underline #ff80ff;}
+		.hsk25 {background: aqua;}
+		.hsk24 {background: lime;}
+		.hsk23 {background: thistle;}
+		.hsk22 {background: coral;}
+		.hsk21 {background: bisque;}
+		.hsk37 {background: DarkKhaki;}
+		.hsk36 {background-color:hsl(240, 100%, 90%);}
+		.hsk35 {background-color:hsl(147, 50%, 90%);}
+		.hsk34 {background-color:hsl(0, 100%, 90%);}
+		.hsk33 {background: grey;}
+		.hsk32 {background: orange;}
+		.hsk31 {background: yellow;}
+		.hskNull {font-weight: bold; color:red;}
+		
+		.pinyinMatchFound {
+			font-size:125%;
+			border: 1px solid black;
+			outline: #4CAF50 solid 2px;
+			margin: auto;
+			padding: 1px;
+			text-align: center;			
+		}
+
+
+		.chineseText {
+			font-family: "Times New Roman", Times, serif;
+			font-size: 110%;
+			line-height: 140%;
+		}
+
+/* "Times New Roman", Times, serif, KaiTi, STKaiti, DFKai-SB, BiauKai, STHeitiSC-Light, STHeitiTC-Light; Garamond;  */
+	
+		.chineseAndEnglish{
+			font-family: "Times New Roman", Times, serif;
+			font-size:110%; 
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		/* Create two equal columns that floats next to each other */
+		.column {
+			float: left;
+			width: 50%;
+			padding: 10px;
+			/*height: 300px;  Should be removed. Only for demonstration */
+		}
+
+		/* Clear floats after the columns */
+		.row:after {
+			content: "";
+			display: table;
+			clear: both;
+		}
+
+		.button {
+		  border: none;
+		  color: white;
+		  padding: 16px 32px;
+		  text-align: center;
+		  text-decoration: none;
+		  display: inline-block;
+		  font-size: 16px;
+		  margin: 4px 2px;
+		  transition-duration: 0.4s;
+		  cursor: pointer;
+		}
+
+		.button1 {
+		  background-color: white; 
+		  color: black; 
+		  border: 2px solid #4CAF50;
+		}
+
+		.button1:hover {
+			background-color: #4CAF50;
+			color: white;
+		}
+		.button:active {
+			background-color: #3e8e41;
+			box-shadow: 0 5px #666;
+			transform: translateY(4px);
+		}
+
+		.button2 {
+		  background-color: white; 
+		  color: black; 
+		  border: 2px solid #008CBA;
+		}
+
+		.button2:hover {
+		  background-color: #008CBA;
+		  color: white;
+		}

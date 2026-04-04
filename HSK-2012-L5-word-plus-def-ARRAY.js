@@ -22,7 +22,6 @@ hsk2012LxWordPlusDefnList[4] =
 
 [
 
-
 ["唉", "唉 	āi 	interjection or grunt of agreement or recognition (e.g. yes, it's me!); to sigh", 7],
 ["爱护", "爱护 	àihù 	to cherish; to treasure; to take care of; to love and protect", 1],
 ["爱惜", "爱惜 	àixī 	to cherish; to treasure; to use sparingly", 34],

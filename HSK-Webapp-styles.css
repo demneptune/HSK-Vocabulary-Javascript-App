@@ -1,0 +1,285 @@
+:root {
+    --sidebar-width: 300px; /* Slightly wider for breathing room */
+    --sidebar-bg: #F0F4F9; /* Gemini's signature soft blue-grey */
+    --border-color: #E6EAF0; /* Much softer, cooler border line */
+    --main-bg: #FFFFFF; /* Pure white for the reading area */
+    --text-primary: #1F2937; /* Dark slate grey, much easier on the eyes */
+    --primary-blue: #0b57d0;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden; 
+    color: var(--text-primary); /* Apply the softer text color globally */
+}
+
+
+#app-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* LEFT SIDEBAR */
+#sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#sidebar h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+/* Make the sidebar cards look like floating AI widgets */
+.control-group {
+    background: #FFFFFF;
+    border: none; /* Remove harsh borders */
+    border-radius: 16px; /* Rounder, friendlier edges */
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); /* Very subtle drop shadow */
+}
+
+/* Style the text boxes to look modern and interactive */
+textarea#textInput, 
+input#pinyinSearchBox {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #F8FAFC; /* Very subtle off-white to show they are fillable */
+    padding: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* Add a nice glow when you click into a text box */
+textarea#textInput:focus, 
+input#pinyinSearchBox:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
+}
+
+textarea#enterChineseText {
+    width: 100%;
+    height: 150px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* RIGHT MAIN AREA (The Split Workspace container) */
+#main-content {
+    flex: 1; 
+    display: flex;
+    flex-direction: row;
+    background: #EAE6DF; /* Slightly darker backing so the cream panels stand out */
+    overflow: hidden; 
+}
+
+/* Grouped CSS for both text and vocab columns */
+#text-pane, 
+#vocab-pane {
+    overflow-y: auto; 
+    padding: 40px 50px;
+    box-sizing: border-box;
+    height: 100%;
+    background: #FCF9F2; /* That warm cream color applied to both */
+}
+
+/* Unique attributes for the left column */
+#text-pane {
+    width: 60%; 
+    min-width: 300px;
+}
+
+/* Unique attributes for the right column */
+#vocab-pane {
+    flex: 1; 
+    min-width: 250px;
+}
+
+/* --- CHINESE TEXT FORMATTING --- */
+#chineseOutput {
+    /* The ultimate Chinese font stack: Mac -> Windows -> Google -> Fallback */
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+    font-size: 17px; /* Large, clear character size */
+    line-height: 2; /* Massive vertical spacing so HSK highlights don't touch */
+    letter-spacing: 2px; /* Horizontal breathing room between characters */
+    color: #1F2937; /* Soft dark slate to prevent eye strain */
+    word-break: break-all; /* Ensures Chinese text wraps cleanly */
+}
+
+/* Add a little extra style to the actual words so they feel slightly elevated */
+.hsk-word {
+    padding: 4px 2px; /* Gives the background colors a little padding around the character */
+    border-radius: 4px; /* Softens the colored highlight boxes */
+    transition: background-color 0.2s ease;
+}
+
+/* Add this specific hover rule for the word itself */
+.hsk-word.hsk-tooltip:hover {
+    position: relative; /* Wakes up z-index */
+    z-index: 999;       /* Forces the entire word (and its tooltip) to the front */
+}
+
+
+/* --- HOVER TOOLTIPS --- */
+.hsk-tooltip {
+    position: relative;
+    cursor: help; /* Changes cursor to indicate there's more info */
+	z-index: 100;
+}
+
+
+/* --- GLOBAL HOVER TOOLTIP --- */
+#global-tooltip {
+    position: fixed; /* Bypasses ALL overflow clipping boundaries */
+    background: #1F2937;
+    color: #FCF9F2;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: normal;
+    white-space: pre-wrap; /* Honors your \n line breaks */
+    width: max-content;
+    max-width: 350px;
+    z-index: 999999; /* Absolute top layer */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    pointer-events: none; /* Stops mouse flickering */
+    display: none; /* Hidden by default */
+}
+
+/* --- THE SMART ARROW --- */
+#global-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; /* Anchors it to the bottom of the tooltip */
+    left: var(--arrow-x, 50%); /* Uses JS math to find the word, defaults to center */
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #1F2937; /* The triangle pointing down */
+}
+
+/* When the JS flips the tooltip below the word, this class flips the arrow up */
+#global-tooltip.flip-up::after {
+    top: auto;
+    bottom: 100%; /* Anchors it to the top of the tooltip */
+    border-top-color: transparent;
+    border-bottom-color: #1F2937; /* The triangle pointing up */
+}
+
+/* The actual tooltip box */
+
+.DISABLED-hsk-tooltip[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Pulls the text straight from the HTML attribute */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1F2937;
+    color: #FCF9F2;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: normal;
+    white-space: pre-wrap; /* This makes the \n line breaks actually work! */
+    width: max-content;
+    max-width: 350px;
+    z-index: 100;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    pointer-events: none; /* Stops the tooltip from flickering if the mouse hits it */
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+/* The little triangle pointing down at the word */
+.DISABLED-hsk-tooltip[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #1F2937;
+    margin-bottom: -8px;
+    z-index: 100;
+}
+
+
+
+/* The Draggable Divider */
+.resizer {
+    width: 6px;
+    background-color: #D6D1C8; /* Slightly darker than the background for contrast */
+    cursor: col-resize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.resizer:hover, .resizer.resizing {
+    background-color: #A3AAB2; 
+}
+
+.resizer-grip {
+    width: 2px;
+    height: 30px;
+    background-color: #8C959F;
+    border-radius: 2px;
+}
+
+#text-container {
+    width: 90%;
+    max-width: 1000px;
+    padding: 60px 20px;
+    line-height: 2.2;
+    font-size: 24px; /* Large for HSK study */
+}
+
+/* Search Glow Constant */
+.search-match {
+    box-shadow: 0 0 0 3px #ff7675; /* Using the constant color */
+    border-radius: 4px;
+	position: relative;
+	z-index: 10;
+}
+
+
+
+/* Enable scrolling for the sidebar tools */
+.sidebar-scroll {
+    flex: 1; /* Tells this container to take up all remaining vertical space */
+    overflow-y: auto; /* Adds a vertical scrollbar ONLY when needed */
+    padding-right: 10px; /* Gives the scrollbar a little room so it doesn't overlap text */
+}
+
+/* Optional: Make the scrollbar look modern and sleek (like a Mac or mobile device) */
+.sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
