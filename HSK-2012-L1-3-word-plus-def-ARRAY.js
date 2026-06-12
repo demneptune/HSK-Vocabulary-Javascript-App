@@ -6,6 +6,8 @@
 //LEVEL 1 (2,3) ONLY (NOT A CUMULATIVE LIST LIKE PREVIOUS HSK2012 LISTS)
 //3 levels
 
+//LEVEL 3 IS COMMENTED OUT BECAUSE REPLACED BY ENRICHED VERSION
+
 
 //LEVEL 1
 hsk2012LxWordPlusDefnList[0] = 
@@ -329,6 +331,9 @@ hsk2012LxWordPlusDefnList[1] =
 
 
 //LEVEL 3
+
+/*
+
 hsk2012LxWordPlusDefnList[2] = 
 
 [
@@ -640,3 +645,5 @@ hsk2012LxWordPlusDefnList[2] =
 ["作用", "作用 	zuòyòng 	to act on; to affect; action; function; activity; impact; result; effect; purpose; intent; to play a role; corresponds to English -ity, -ism, -ization; CL:個|个[gè]"]
 
 ];
+
+*/

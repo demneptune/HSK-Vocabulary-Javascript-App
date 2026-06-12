@@ -18,7 +18,7 @@ hsk2012LxWordPlusDefnList[3] =
 ["保证","保证 	bǎozhèng 	guarantee; to guarantee; to ensure; to safeguard; to pledge; CL:個|个[gè]",[[4,4,2,1],[4,5,1,1],[4,6,2,1],[4,10,4,1],[4,14,2,1]]],
 ["抱","抱 	bào 	to hold; to carry (in one's arms); to hug or embrace; surround; cherish",[[4,14,2,1],[4,17,2,1],[4,19,1,1]]],
 ["抱歉","抱歉 	bàoqiàn 	sorry; We apologize!; to feel apologetic; to regret",[[4,14,2,1],[4,19,1,1]]],
-["报道","报道 	bàodào 	report; CL:篇[piān],份[fèn]",[]],
+//["报道","报道 	bàodào 	report; CL:篇[piān],份[fèn]",[]],
 ["报名","报名 	bàomíng 	to sign up; to enter one's name; to apply; to register; to enroll; to enlist",[[4,16,1,1]]],
 ["倍","倍 	bèi 	(two, three etc) -fold; times (multiplier); double; to increase or multiply",[[4,6,2,1],[4,12,5,1],[4,20,5,1]]],
 ["本来","本来 	běnlái 	original; originally; at first; it goes without saying; of course",[[4,3,2,1],[4,9,1,1],[4,13,1,1],[4,20,1,1]]],
